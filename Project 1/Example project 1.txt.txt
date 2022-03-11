@@ -1,0 +1,10 @@
+@set1: set = {};
+griffin(griffile("sample.txt")) $> @set1;
+
+if (@set1.isEmpty()) {
+    griffout(console) <$ "This set is empty";
+} else {
+    for(@i: int = 0; @i < @set1.getCardinality; @i = @i + 1) {
+        griffout(console) <$ @set1.getElement(@i);
+    }
+};

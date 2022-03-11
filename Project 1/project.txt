@@ -1,0 +1,142 @@
+%option main
+DIGIT   [0-9]
+LETTER  [a-zA-Z]
+IDENTIFIER {AT}{LETTER}({DIGIT}|{LETTER})*
+INT {DIGIT}+
+FLOAT {DIGIT}+\.{DIGIT}+
+CHAR_IDENTIFIER    '
+STRING_IDENTIFIER  \"
+STRING {STRING_IDENTIFIER}[^\"]*{STRING_IDENTIFIER}
+CHAR {CHAR_IDENTIFIER}[^']{CHAR_IDENTIFIER}
+TRUE true
+FALSE false
+IF      if
+FOR     for
+RETURN  return
+ELSE    else
+INPUT_STREAM    \$\>
+OUTPUT_STREAM   \<\$
+NOT_EQUAL  !=
+AND_RELATION  &&
+OR_RELATION  \|\|
+EQUALS ==
+LT <
+GT >
+LTE <=
+GTE >= 
+FUNC griffunc
+SC ;
+GRIFFIN griffin
+GRIFFOUT griffout
+CONSOLE console
+SET set
+NL \n
+ASSIGN_OP =
+ADD_ELEMENT addElement
+DELETE_ELEMENT deleteElement
+GET_ELEMENT getElement
+GET_CARDINALiTY getCardinality
+WHILE while
+LP \(
+RP \)
+LB \{
+RB \}
+UNION union
+INTER inter
+DIFF  diff
+CROSS cross
+PLUS  \+
+MINUS -
+DIVIDE \\
+MULT \*
+MOD %
+IS_SUPERSET isSuperSet
+IS_SUBSET isSubSet
+IS_EQUAL isEqual
+IS_EQUVAILENT isEquvailent
+IS_OVERLAPPING isOverlapping
+IS_DISJOINT isDisjoint
+IS_EMPTY isEmpty
+AT @
+COMMA ,
+COLON :
+COMMENT $$[^(\n)]*\n
+NEWLINE \n
+FUNCTION_CALL call
+DOT \.
+ELEMENT element
+GRIFFILE griffile
+
+
+
+%%
+{NEWLINE} printf("\n");
+{DOT} printf("DOT ");
+{GRIFFILE} printf("GRIFFILE ");
+{CONSOLE} printf("CONSOLE ");
+{GRIFFOUT} printf("GRIFFOUT ");
+{ELEMENT} printf("ELEMENT ");
+{IS_EMPTY} printf("IS_EMPTY ");
+{FUNCTION_CALL} printf("FUNCTION_CALL ");
+{COMMENT} printf("COMMENT ");
+{STRING} printf("STRING ");
+{STRING_IDENTIFIER} printf("STRING_IDENTIFIER ");
+{COMMA} printf("COMMA ");
+{COLON} printf("COLON ");
+{IF}    printf("IF ");
+{SET}   printf("SET_IDENTIFIER ");
+{GRIFFIN} printf("INPUT_IDENTIFIER ");
+{INT} printf("INT ");
+{FLOAT} printf("FLOAT ");
+{CHAR} printf("CHAR ");
+{TRUE} printf("TRUE ");
+{FALSE} printf("FALSE ");
+{SC} printf("SC ");
+{PLUS} printf("PLUS ");
+{MINUS} printf("MINUS ");
+{MULT} printf("MULTIPLY ");
+{DIVIDE} printf("DIVIDE ");
+{MOD} printf("MOD ");
+{FOR} printf("FOR ");
+{FUNC} printf("FUNC_IDENTIFIER ");
+{EQUALS} printf("EQUALS_RELATION ");
+{OR_RELATION} printf("OR_RELATION ");
+{AND_RELATION} printf("AND_RELATION ");
+{GTE} printf("GTE ");
+{LTE} printf("LTE ");
+{LT} printf("LT ");
+{GT} printf("GT ");
+{NOT_EQUAL} printf("NOT_EQUAL ");
+{INPUT_STREAM} printf("INPUT_STREAM ");
+{OUTPUT_STREAM} printf("OUTPUT_STREAM ");
+{ASSIGN_OP} printf("ASSIGN_OP ");
+{ADD_ELEMENT} printf("ADD_ELEMENT ");
+{DELETE_ELEMENT} printf("DELETE_ELEMENT ");
+{GET_ELEMENT} printf("GET_ELEMENT ");
+{GET_CARDINALiTY} printf("GET_CARDINALiTY ");
+{WHILE} printf("WHILE_IDENTIFIER ");
+{LP} printf("LP ");
+{RP} printf("RP ");
+{RB} printf("RB ");
+{LB} printf("LB ");
+{UNION} printf("UNION ");
+{DIFF} printf("DIFF ");
+{CROSS} printf("CROSS ");
+{INTER} printf("INTER ");
+{IS_DISJOINT} printf("IS_DISJOINT ");
+{IS_SUBSET} printf("IS_SUBSET ");
+{IS_SUPERSET} printf("IS_SUPERSET ");
+{IS_EQUVAILENT} printf("IS_EQUVAILENT ");
+{IS_OVERLAPPING} printf("IS_OVERLAPPING ");
+{IS_EQUAL} printf("IS_EQUAL ");
+{IDENTIFIER} printf("IDENTIFIER ");
+{ELSE} printf("ELSE ");
+int printf("INT ");
+string printf("STRING ");
+float printf("FLOAT ");
+char printf("CHAR ");
+boolean printf("BOOLEAN ");
+
+
+
+

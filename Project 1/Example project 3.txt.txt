@@ -1,0 +1,13 @@
+griffunc:set @removeElement(@set1: set, @element1: element) {
+    @set1.deleteElement(@element1);
+    return @set1;
+};
+
+@tempSet: set = {};
+griffin(griffile("sample.txt")) $> @tempSet;
+call @removeElement(@tempSet, "abc");
+
+for(@i: int = 0; @i < @tempSet.getCardinality; @i = @i + 1) {
+    griffout(console) <$ @tempSet.getElement(@i);
+}
+

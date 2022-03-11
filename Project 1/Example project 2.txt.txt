@@ -1,0 +1,16 @@
+@strVar: string = "griffin language is best";
+@randomInt: int = 315;
+
+@set1: set = {"a", 'b', @strVar};
+@set2: set = {@randomInt, 2, 12.3};
+@setUnion: set = @set1 union @set2;
+
+for(@i: int = 0; @i < @setUnion.getCardinality; @i = @i + 1) {
+        griffout(console) <$ @setUnion.getElement(@i);
+}
+
+griffout(griffile("sample.txt")) <$ @setUnion;
+
+delete @set1;
+delete @set2;
+delete @setUnion;
