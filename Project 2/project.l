@@ -82,7 +82,7 @@ GRIFFILE griffile
 {COLON} return COLON;
 {IF}    return IF;
 {SET}   return SET_IDENTIFIER;
-{GRIFFIN} return INPUT_IDENTIFIER ;
+{GRIFFIN} return GRIFFIN ;
 {INT} return INT ;
 {FLOAT} return FLOAT;
 {CHAR} return CHAR;
@@ -111,7 +111,7 @@ GRIFFILE griffile
 {DELETE_ELEMENT} return DELETE_ELEMENT;
 {GET_ELEMENT} return GET_ELEMENT;
 {GET_CARDINALiTY} return GET_CARDINALiTY;
-{WHILE} return WHILE_IDENTIFIER;
+{WHILE} return WHILE;
 {LP} return LP;
 {RP} return RP;
 {RB} return RB;
