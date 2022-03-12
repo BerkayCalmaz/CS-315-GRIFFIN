@@ -7,7 +7,6 @@ void yyerror(char* s);
     extern int yylineno;
 %}
 
-%token ASSIGNMENTOP
 %token GRIFFILE
 %token CONSOLE
 %token GRIFFOUT
@@ -16,11 +15,10 @@ void yyerror(char* s);
 %token FUNCTION_CALL
 %token COMMENT
 %token STRING
-%token STRING_IDENTIFIER
 %token COMMA
 %token COLON
 %token IF
-%token SET
+%token SET_IDENTIFIER
 %token GRIFFIN
 %token INT
 %token FLOAT
@@ -30,12 +28,12 @@ void yyerror(char* s);
 %token SC
 %token PLUS
 %token MINUS
-%token MULT
+%token MULTIPLY
 %token DIVIDE
 %token MOD
 %token FOR
-%token FUNC
-%token EQUALS
+%token FUNC_IDENTIFIER
+%token EQUALS_RELATION
 %token OR_RELATION
 %token AND_RELATION
 %token GTE
@@ -57,6 +55,7 @@ void yyerror(char* s);
 %token LB
 %token UNIOON 
 %token DIFF 
+%token CROSS 
 %token INTER
 %token IS_DISJOINT
 %token IS_SUBSET
@@ -70,8 +69,8 @@ void yyerror(char* s);
 %token STRING_TYPE
 %token FLOAT_TYPE
 %token CHAR_TYPE
-%token BOOLEAN 
-%token DELETE
+%token BOOLEAN_TYPE
+%token DELETE_TYPE
 %token RETURN
 %token NL
 
@@ -94,9 +93,60 @@ stmt: dec_stmt | if_stmt | loop_stmt | func_stmt
     | assign_stmt | return_stmt | stream_stmt
     | set_dec_stmt | delete_stmt
 
+dec_stmt: IDENTIFIER COLON primitive_type ASSIGN_OP expression
+        | IDENTIFIER COLON primitive_type
 
+set_dec_stmt: IDENTIFIER COLON SET_IDENTIFIER
+            | IDENTIFIER COLON SET_IDENTIFIER ASSIGN_OP set_expr
+            | IDENTIFIER COLON SET_IDENTIFIER ASSIGN_OP func_call 
 
+return_stmt:  RETURN IDENTIFIER
+            | RETURN
+            | RETURN expression
+            | RETURN cond_expr
+            | RETURN constant
+            | RETURN set_constant
+            | RETURN set_expr
+
+loop_stmt: for_stmt
+        | while_stmt
+
+for_stmt: FOR LP dec_stmt SC cond_expr SC arith_stmt RP LB stmts RB
+
+while_stmt : WHILE LP cond_expr RP LB stmts RB
  
+delete_stmt: DELETE_TYPE IDENTIFIER
+
+comment: COMMENT NL
+
+primitive_type: STRING_TYPE
+                | INT_TYPE 
+                | FLOAT_TYPE 
+                | CHAR_TYPE 
+                | BOOLEAN_TYPE
+
+string: STRING
+int: INT
+float: FLOAT
+char: CHAR
+
+boolean : TRUE | FALSE
+
+
+stream_stmt: input_stmt | output_stmt
+
+input_stmt: GRIFFIN LP input_from RP INPUT_STREAM IDENTIFIER
+
+input_from: IDENTIFIER | CONSOLE | file_constant
+
+output_stmt: GRIFFOUT LP output_to RP OUTPUT_STREAM output_from
+
+output_to: CONSOLE | IDENTIFIER | file_constant
+
+output_from: IDENTIFIER | set_constant | constant
+
+file_constant: GRIFFILE LP string RP
+
 %%
 
 
