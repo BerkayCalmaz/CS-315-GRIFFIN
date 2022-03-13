@@ -4,12 +4,11 @@ LETTER  [a-zA-Z]
 IDENTIFIER {AT}{LETTER}({DIGIT}|{LETTER})*
 INT {DIGIT}+
 FLOAT {DIGIT}+\.{DIGIT}+
+BOOLEAN true | false
 CHAR_IDENTIFIER    '
 STRING_IDENTIFIER  \"
 STRING {STRING_IDENTIFIER}[^\"]*{STRING_IDENTIFIER}
 CHAR {CHAR_IDENTIFIER}[^']{CHAR_IDENTIFIER}
-TRUE true
-FALSE false
 IF      if
 FOR     for
 RETURN  return
@@ -29,12 +28,14 @@ GRIFFIN griffin
 GRIFFOUT griffout
 CONSOLE console
 SET set
+VOID void
 NL \n
 ASSIGN_OP =
 ADD_ELEMENT addElement
 DELETE_ELEMENT deleteElement
 GET_ELEMENT getElement
 GET_CARDINALiTY getCardinality
+CONTAINS contains
 WHILE while
 LP \(
 RP \)
@@ -65,16 +66,15 @@ FUNCTION_CALL call
 DOT \.
 ELEMENT element
 GRIFFILE griffile
-
+UNDERSCORE \_
 %%
 {NEWLINE} return NL;
 {DOT} return DOT;
 {GRIFFILE} return GRIFFILE;
 {CONSOLE} return CONSOLE;
 {GRIFFOUT} return GRIFFOUT;
-{ELEMENT} return ELEMENT;
 {IS_EMPTY} return IS_EMPTY;
-{FUNCTION_CALL} return FUNCTION_CALL;
+{FUNCTION_CALL} return FUNCTION_CALL_IDENTIFIER;
 {COMMENT} return COMMENT;
 {STRING} return STRING;
 {STRING_IDENTIFIER} return STRING_IDENTIFIER;
@@ -82,12 +82,12 @@ GRIFFILE griffile
 {COLON} return COLON;
 {IF}    return IF;
 {SET}   return SET_IDENTIFIER;
+{ELEMENT} return ELEMENT_IDENTIFIER
+{VOID} return VOID_IDENTIFIER
 {GRIFFIN} return GRIFFIN ;
 {INT} return INT ;
 {FLOAT} return FLOAT;
 {CHAR} return CHAR;
-{TRUE} return TRUE;
-{FALSE} return FALSE;
 {SC} return SC;
 {PLUS} return PLUS;
 {MINUS} return MINUS;
@@ -116,6 +116,7 @@ GRIFFILE griffile
 {RP} return RP;
 {RB} return RB;
 {LB} return LB;
+{AT} return AT;
 {UNION} return UNION;
 {DIFF} return DIFF;
 {CROSS} return CROSS;
@@ -136,4 +137,8 @@ boolean return BOOLEAN_TYPE;
 delete return DELETE_TYPE;
 {RETURN} return RETURN;
 
-
+{LETTER} return LETTER;
+{DIGIT} return DIGIT;
+{UNDERSCORE} return UNDERSCORE
+{BOOLEAN} return BOOLEAN
+{CONTAINS} return CONTAINS
