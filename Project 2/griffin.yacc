@@ -2,7 +2,6 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-int yylex(void);
 void yyerror(char* s);
     extern int yylineno;
 %}
@@ -72,6 +71,8 @@ void yyerror(char* s);
 %token DELETE_TYPE
 %token RETURN
 %token NL
+%token TRUE
+%token FALSE
 
 %token LETTER
 %token DIGIT
@@ -229,13 +230,13 @@ primitive_type: STRING_TYPE
                 | CHAR_TYPE 
                 | BOOLEAN_TYPE
 
-//?????
-/*string: STRING
+
+string: STRING
 int: INT
 float: FLOAT
 char: CHAR
-boolean : TRUE | FALSE*/
-//?????
+boolean : TRUE | FALSE
+
 
 //14 Function Declarations and Calls
 func_stmt : func_dec | func_call | prim_set_func_call
@@ -247,20 +248,20 @@ func_dec_primitive : primitive_type | SET_IDENTIFIER | VOID_IDENTIFIER
 
 param_dec_type : primitive_type | SET_IDENTIFIER | ELEMENT_IDENTIFIER
 
-param_dec_list : empty | identifier COLON param_dec_type 
-| identifier COLON param_dec_type COMMA param_dec_type
+param_dec_list : empty | IDENTIFIER COLON param_dec_type 
+| IDENTIFIER COLON param_dec_type COMMA param_dec_type
 
 constant_list : constant | set_constant
 
-param_list : identifier | empty
+param_list : IDENTIFIER | empty
 		 | constant_list
-		 | identifier COMMA param_list
+		 | IDENTIFIER COMMA param_list
 	             | constant_list COMMA constant_list	
 
-func_call : FUNCTION_CALL_IDENTIFIER identifier LP param_list RP
+func_call : FUNCTION_CALL_IDENTIFIER IDENTIFIER LP param_list RP
     | FUNCTION_CALL_IDENTIFIER prim_set_func LP param_list RP
 
-prim_set_func_call :   FUNCTION_CALL_IDENTIFIER identifier DOT prim_set_func  LP param_list RP
+prim_set_func_call :   FUNCTION_CALL_IDENTIFIER IDENTIFIER DOT prim_set_func  LP param_list RP
                    | FUNCTION_CALL_IDENTIFIER set_constant DOT prim_set_func LP param_list RP
 //----------
 
@@ -279,8 +280,6 @@ output_from: IDENTIFIER | set_constant | constant
 file_constant: GRIFFILE LP STRING RP
 empty:
 %%
-
-
 
 void yyerror(char *s) {
 	fprintf(stdout, "line %d: %s\n", yylineno,s);

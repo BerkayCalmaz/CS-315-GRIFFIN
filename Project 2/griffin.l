@@ -1,4 +1,10 @@
-%option main
+%{
+#include <stdio.h>
+#include "y.tab.h"
+void yyerror(char *);
+%}
+
+
 DIGIT   [0-9]
 LETTER  [a-zA-Z]
 IDENTIFIER {AT}{LETTER}({DIGIT}|{LETTER})*
@@ -67,6 +73,8 @@ DOT \.
 ELEMENT element
 GRIFFILE griffile
 UNDERSCORE \_
+
+%option yylineno
 %%
 {NEWLINE} return NL;
 {DOT} return DOT;
@@ -136,9 +144,10 @@ char return CHAR_TYPE;
 boolean return BOOLEAN_TYPE;
 delete return DELETE_TYPE;
 {RETURN} return RETURN;
+true return TRUE;
+false return FALSE;
+%%
 
-{LETTER} return LETTER;
-{DIGIT} return DIGIT;
-{UNDERSCORE} return UNDERSCORE
-{BOOLEAN} return BOOLEAN
-{CONTAINS} return CONTAINS
+int yywrap(void){
+	return 1;
+}

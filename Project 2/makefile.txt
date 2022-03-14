@@ -1,0 +1,6 @@
+griffin: y.tab.c lex.yy.c
+	gcc -o griffin y.tab.c
+y.tab.c: griffin.y lex.yy.c
+	yacc griffin.y
+lex.yy.c: griffin.l
+	lex griffin.l
