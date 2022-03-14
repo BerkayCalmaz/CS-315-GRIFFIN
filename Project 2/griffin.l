@@ -1,16 +1,13 @@
 %{
 #include <stdio.h>
-#include "y.tab.h"
-void yyerror(char *);
 %}
-
 
 DIGIT   [0-9]
 LETTER  [a-zA-Z]
+AT @
 IDENTIFIER {AT}{LETTER}({DIGIT}|{LETTER})*
-INT {DIGIT}+
-FLOAT {DIGIT}+\.{DIGIT}+
-BOOLEAN true | false
+INT [+|-]?{DIGIT}+
+FLOAT [+|-]?{DIGIT}+\.{DIGIT}+
 CHAR_IDENTIFIER    '
 STRING_IDENTIFIER  \"
 STRING {STRING_IDENTIFIER}[^\"]*{STRING_IDENTIFIER}
@@ -40,7 +37,7 @@ ASSIGN_OP =
 ADD_ELEMENT addElement
 DELETE_ELEMENT deleteElement
 GET_ELEMENT getElement
-GET_CARDINALiTY getCardinality
+GET_CARDINALITY getCardinality
 CONTAINS contains
 WHILE while
 LP \(
@@ -63,20 +60,16 @@ IS_EQUVAILENT isEquvailent
 IS_OVERLAPPING isOverlapping
 IS_DISJOINT isDisjoint
 IS_EMPTY isEmpty
-AT @
 COMMA ,
 COLON :
 COMMENT $$[^(\n)]*\n
-NEWLINE \n
 FUNCTION_CALL call
 DOT \.
 ELEMENT element
 GRIFFILE griffile
-UNDERSCORE \_
-
-%option yylineno
+BOOLEAN true|false
 %%
-{NEWLINE} return NL;
+{NL} { extern int lineno; lineno++; return NL;}
 {DOT} return DOT;
 {GRIFFILE} return GRIFFILE;
 {CONSOLE} return CONSOLE;
@@ -85,15 +78,14 @@ UNDERSCORE \_
 {FUNCTION_CALL} return FUNCTION_CALL_IDENTIFIER;
 {COMMENT} return COMMENT;
 {STRING} return STRING;
-{STRING_IDENTIFIER} return STRING_IDENTIFIER;
 {COMMA} return COMMA;
 {COLON} return COLON;
 {IF}    return IF;
 {SET}   return SET_IDENTIFIER;
-{ELEMENT} return ELEMENT_IDENTIFIER
-{VOID} return VOID_IDENTIFIER
-{GRIFFIN} return GRIFFIN ;
-{INT} return INT ;
+{ELEMENT} return ELEMENT_IDENTIFIER;
+{VOID} return VOID_IDENTIFIER;
+{GRIFFIN} return GRIFFIN;
+{INT} return INT;
 {FLOAT} return FLOAT;
 {CHAR} return CHAR;
 {SC} return SC;
@@ -118,13 +110,12 @@ UNDERSCORE \_
 {ADD_ELEMENT} return ADD_ELEMENT;
 {DELETE_ELEMENT} return DELETE_ELEMENT;
 {GET_ELEMENT} return GET_ELEMENT;
-{GET_CARDINALiTY} return GET_CARDINALiTY;
+{GET_CARDINALITY} return GET_CARDINALITY;
 {WHILE} return WHILE;
 {LP} return LP;
 {RP} return RP;
 {RB} return RB;
 {LB} return LB;
-{AT} return AT;
 {UNION} return UNION;
 {DIFF} return DIFF;
 {CROSS} return CROSS;
@@ -144,10 +135,9 @@ char return CHAR_TYPE;
 boolean return BOOLEAN_TYPE;
 delete return DELETE_TYPE;
 {RETURN} return RETURN;
-true return TRUE;
-false return FALSE;
+{CONTAINS} return CONTAINS;
+{BOOLEAN} return BOOLEAN;
 %%
-
-int yywrap(void){
+int yywrap(){
 	return 1;
 }

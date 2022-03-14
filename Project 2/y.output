@@ -1,0 +1,2705 @@
+   0  $accept : program $end
+
+   1  program : stmts
+
+   2  stmts : stmt stmt SC
+   3        | stmt SC
+   4        | stmt SC NL
+
+   5  stmt : matched_stmt
+   6       | unmatched_stmt
+
+   7  dec_stmt : IDENTIFIER COLON primitive_type ASSIGN_OP expression
+   8           | IDENTIFIER COLON primitive_type
+
+   9  set_dec_stmt : IDENTIFIER COLON SET_IDENTIFIER
+  10               | IDENTIFIER COLON SET_IDENTIFIER ASSIGN_OP set_expr
+
+  11  assign_stmt : IDENTIFIER ASSIGN_OP expression
+
+  12  set_assign_stmt : IDENTIFIER ASSIGN_OP set_expr_identifiers
+
+  13  matched_stmt : IF LP cond_expr RP LB matched_stmt RB ELSE LB matched_stmt
+  14               | if_block
+
+  15  unmatched_stmt : IF LP cond_expr RP stmt
+  16                 | IF LP cond_expr RP LB matched_stmt RB ELSE LB unmatched_stmt RB
+  17                 | IF LP cond_expr RP LB stmts RB ELSE LB stmts RB
+  18                 | IF LP cond_expr RP LB stmts RB
+
+  19  if_block : dec_stmt
+  20           | loop_stmt
+  21           | func_stmt
+  22           | assign_stmt
+  23           | return_stmt
+  24           | stream_stmt
+  25           | set_dec_stmt
+  26           | delete_stmt
+  27           | comment
+  28           | set_assign_stmt
+
+  29  return_stmt : RETURN IDENTIFIER
+  30              | RETURN constant_list
+
+  31  loop_stmt : for_stmt
+  32            | while_stmt
+
+  33  for_stmt : FOR LP dec_stmt SC cond_expr SC arith_expr RP LB stmts RB
+
+  34  while_stmt : WHILE LP cond_expr RP LB stmts RB
+
+  35  expression : arith_expr
+
+  36  cond_expr : set_cond_expr
+  37            | equality_expr
+
+  38  equality_expr : equal_condition_elements
+  39                | equality_expr EQUALS_RELATION equal_condition_elements
+
+  40  equal_condition_elements : arith_relational_expr
+  41                           | logic_expr
+
+  42  arith_relational_expr : LP arith_relational_elements relational_op arith_relational_expr RP
+
+  43  arith_relational_elements : IDENTIFIER
+  44                            | INT
+  45                            | FLOAT
+
+  46  logic_expr : logic_expr_element
+  47             | logic_expr_element logic_op logic_expr
+
+  48  logic_expr_element : IDENTIFIER
+  49                     | BOOLEAN
+
+  50  set_expr : set_expr_identifiers
+  51           | set_expr_identifiers set_op set_expr
+
+  52  set_cond_expr : set_expr_identifiers DOT set_cond_op LP set_expr_identifiers RP
+
+  53  set_expr_identifiers : IDENTIFIER
+  54                       | set_constant
+  55                       | func_call
+
+  56  arith_expr : arith_expr_identifiers
+  57             | arith_expr_identifiers arith_op arith_expr
+
+  58  arith_expr_identifiers : IDENTIFIER
+  59                         | INT
+  60                         | FLOAT
+  61                         | func_call
+
+  62  delete_stmt : DELETE_TYPE IDENTIFIER
+
+  63  set_constant : LB set_elements RB
+
+  64  set_elements : constant
+  65               | IDENTIFIER
+  66               | constant COMMA set_elements
+  67               | IDENTIFIER COMMA set_elements
+
+  68  constant : STRING
+  69           | INT
+  70           | FLOAT
+  71           | CHAR
+  72           | BOOLEAN
+
+  73  comment : COMMENT NL
+
+  74  set_op : UNION
+  75         | INTER
+  76         | DIFF
+  77         | CROSS
+
+  78  prim_set_func : GET_CARDINALITY
+  79                | GET_ELEMENT
+  80                | ADD_ELEMENT
+  81                | DELETE_ELEMENT
+  82                | CONTAINS
+  83                | IS_EMPTY
+
+  84  arith_op : PLUS
+  85           | MINUS
+  86           | DIVIDE
+  87           | MULTIPLY
+  88           | MOD
+
+  89  logic_op : NOT_EQUAL
+  90           | AND_RELATION
+  91           | OR_RELATION
+
+  92  relational_op : LT
+  93                | GT
+  94                | LTE
+  95                | GTE
+  96                | EQUALS_RELATION
+
+  97  set_cond_op : IS_SUPERSET
+  98              | IS_SUBSET
+  99              | IS_EQUAL
+ 100              | IS_EQUVAILENT
+ 101              |
+ 102              | IS_OVERLAPPING
+ 103              | IS_DISJOINT
+
+ 104  primitive_type : STRING_TYPE
+ 105                 | INT_TYPE
+ 106                 | FLOAT_TYPE
+ 107                 | CHAR_TYPE
+ 108                 | BOOLEAN_TYPE
+
+ 109  func_stmt : func_dec
+ 110            | func_call
+ 111            | prim_set_func_call
+
+ 112  func_dec : FUNC_IDENTIFIER IDENTIFIER LP param_dec_list RP COLON func_dec_primitive LB stmts RB
+
+ 113  func_dec_primitive : primitive_type
+ 114                     | SET_IDENTIFIER
+ 115                     | VOID_IDENTIFIER
+
+ 116  param_dec_type : primitive_type
+ 117                 | SET_IDENTIFIER
+ 118                 | ELEMENT_IDENTIFIER
+
+ 119  param_dec_list : empty
+ 120                 | IDENTIFIER COLON param_dec_type
+ 121                 | IDENTIFIER COLON param_dec_type COMMA param_dec_type
+
+ 122  constant_list : constant
+ 123                | set_constant
+
+ 124  param_list : IDENTIFIER
+ 125             | empty
+ 126             | constant_list
+ 127             | IDENTIFIER COMMA param_list
+ 128             | constant_list COMMA constant_list
+
+ 129  func_call : FUNCTION_CALL_IDENTIFIER IDENTIFIER LP param_list RP
+ 130            | FUNCTION_CALL_IDENTIFIER prim_set_func LP param_list RP
+
+ 131  prim_set_func_call : FUNCTION_CALL_IDENTIFIER IDENTIFIER DOT prim_set_func LP param_list RP
+ 132                     | FUNCTION_CALL_IDENTIFIER set_constant DOT prim_set_func LP param_list RP
+
+ 133  stream_stmt : input_stmt
+ 134              | output_stmt
+
+ 135  input_stmt : GRIFFIN LP input_from RP INPUT_STREAM IDENTIFIER
+
+ 136  input_from : IDENTIFIER
+ 137             | CONSOLE
+ 138             | file_constant
+
+ 139  output_stmt : GRIFFOUT LP output_to RP OUTPUT_STREAM output_from
+
+ 140  output_to : CONSOLE
+ 141            | IDENTIFIER
+ 142            | file_constant
+
+ 143  output_from : IDENTIFIER
+ 144              | set_constant
+ 145              | constant
+
+ 146  file_constant : GRIFFILE LP STRING RP
+
+ 147  empty :
+
+state 0
+	$accept : . program $end  (0)
+
+	GRIFFOUT  shift 1
+	FUNCTION_CALL_IDENTIFIER  shift 2
+	COMMENT  shift 3
+	IF  shift 4
+	GRIFFIN  shift 5
+	FOR  shift 6
+	FUNC_IDENTIFIER  shift 7
+	WHILE  shift 8
+	IDENTIFIER  shift 9
+	DELETE_TYPE  shift 10
+	RETURN  shift 11
+	.  error
+
+	program  goto 12
+	stmts  goto 13
+	stmt  goto 14
+	matched_stmt  goto 15
+	unmatched_stmt  goto 16
+	dec_stmt  goto 17
+	set_dec_stmt  goto 18
+	assign_stmt  goto 19
+	set_assign_stmt  goto 20
+	if_block  goto 21
+	loop_stmt  goto 22
+	func_stmt  goto 23
+	return_stmt  goto 24
+	stream_stmt  goto 25
+	delete_stmt  goto 26
+	comment  goto 27
+	for_stmt  goto 28
+	while_stmt  goto 29
+	func_call  goto 30
+	func_dec  goto 31
+	prim_set_func_call  goto 32
+	input_stmt  goto 33
+	output_stmt  goto 34
+
+
+state 1
+	output_stmt : GRIFFOUT . LP output_to RP OUTPUT_STREAM output_from  (139)
+
+	LP  shift 35
+	.  error
+
+
+state 2
+	func_call : FUNCTION_CALL_IDENTIFIER . IDENTIFIER LP param_list RP  (129)
+	func_call : FUNCTION_CALL_IDENTIFIER . prim_set_func LP param_list RP  (130)
+	prim_set_func_call : FUNCTION_CALL_IDENTIFIER . IDENTIFIER DOT prim_set_func LP param_list RP  (131)
+	prim_set_func_call : FUNCTION_CALL_IDENTIFIER . set_constant DOT prim_set_func LP param_list RP  (132)
+
+	IS_EMPTY  shift 36
+	ADD_ELEMENT  shift 37
+	DELETE_ELEMENT  shift 38
+	GET_ELEMENT  shift 39
+	GET_CARDINALITY  shift 40
+	LB  shift 41
+	IDENTIFIER  shift 42
+	CONTAINS  shift 43
+	.  error
+
+	set_constant  goto 44
+	prim_set_func  goto 45
+
+
+state 3
+	comment : COMMENT . NL  (73)
+
+	NL  shift 46
+	.  error
+
+
+state 4
+	matched_stmt : IF . LP cond_expr RP LB matched_stmt RB ELSE LB matched_stmt  (13)
+	unmatched_stmt : IF . LP cond_expr RP stmt  (15)
+	unmatched_stmt : IF . LP cond_expr RP LB matched_stmt RB ELSE LB unmatched_stmt RB  (16)
+	unmatched_stmt : IF . LP cond_expr RP LB stmts RB ELSE LB stmts RB  (17)
+	unmatched_stmt : IF . LP cond_expr RP LB stmts RB  (18)
+
+	LP  shift 47
+	.  error
+
+
+state 5
+	input_stmt : GRIFFIN . LP input_from RP INPUT_STREAM IDENTIFIER  (135)
+
+	LP  shift 48
+	.  error
+
+
+state 6
+	for_stmt : FOR . LP dec_stmt SC cond_expr SC arith_expr RP LB stmts RB  (33)
+
+	LP  shift 49
+	.  error
+
+
+state 7
+	func_dec : FUNC_IDENTIFIER . IDENTIFIER LP param_dec_list RP COLON func_dec_primitive LB stmts RB  (112)
+
+	IDENTIFIER  shift 50
+	.  error
+
+
+state 8
+	while_stmt : WHILE . LP cond_expr RP LB stmts RB  (34)
+
+	LP  shift 51
+	.  error
+
+
+state 9
+	dec_stmt : IDENTIFIER . COLON primitive_type ASSIGN_OP expression  (7)
+	dec_stmt : IDENTIFIER . COLON primitive_type  (8)
+	set_dec_stmt : IDENTIFIER . COLON SET_IDENTIFIER  (9)
+	set_dec_stmt : IDENTIFIER . COLON SET_IDENTIFIER ASSIGN_OP set_expr  (10)
+	assign_stmt : IDENTIFIER . ASSIGN_OP expression  (11)
+	set_assign_stmt : IDENTIFIER . ASSIGN_OP set_expr_identifiers  (12)
+
+	COLON  shift 52
+	ASSIGN_OP  shift 53
+	.  error
+
+
+state 10
+	delete_stmt : DELETE_TYPE . IDENTIFIER  (62)
+
+	IDENTIFIER  shift 54
+	.  error
+
+
+state 11
+	return_stmt : RETURN . IDENTIFIER  (29)
+	return_stmt : RETURN . constant_list  (30)
+
+	STRING  shift 55
+	INT  shift 56
+	FLOAT  shift 57
+	CHAR  shift 58
+	LB  shift 41
+	IDENTIFIER  shift 59
+	BOOLEAN  shift 60
+	.  error
+
+	constant_list  goto 61
+	set_constant  goto 62
+	constant  goto 63
+
+
+state 12
+	$accept : program . $end  (0)
+
+	$end  accept
+
+
+state 13
+	program : stmts .  (1)
+
+	.  reduce 1
+
+
+state 14
+	stmts : stmt . stmt SC  (2)
+	stmts : stmt . SC  (3)
+	stmts : stmt . SC NL  (4)
+
+	GRIFFOUT  shift 1
+	FUNCTION_CALL_IDENTIFIER  shift 2
+	COMMENT  shift 3
+	IF  shift 4
+	GRIFFIN  shift 5
+	SC  shift 64
+	FOR  shift 6
+	FUNC_IDENTIFIER  shift 7
+	WHILE  shift 8
+	IDENTIFIER  shift 9
+	DELETE_TYPE  shift 10
+	RETURN  shift 11
+	.  error
+
+	stmt  goto 65
+	matched_stmt  goto 15
+	unmatched_stmt  goto 16
+	dec_stmt  goto 17
+	set_dec_stmt  goto 18
+	assign_stmt  goto 19
+	set_assign_stmt  goto 20
+	if_block  goto 21
+	loop_stmt  goto 22
+	func_stmt  goto 23
+	return_stmt  goto 24
+	stream_stmt  goto 25
+	delete_stmt  goto 26
+	comment  goto 27
+	for_stmt  goto 28
+	while_stmt  goto 29
+	func_call  goto 30
+	func_dec  goto 31
+	prim_set_func_call  goto 32
+	input_stmt  goto 33
+	output_stmt  goto 34
+
+
+state 15
+	stmt : matched_stmt .  (5)
+
+	.  reduce 5
+
+
+state 16
+	stmt : unmatched_stmt .  (6)
+
+	.  reduce 6
+
+
+state 17
+	if_block : dec_stmt .  (19)
+
+	.  reduce 19
+
+
+state 18
+	if_block : set_dec_stmt .  (25)
+
+	.  reduce 25
+
+
+state 19
+	if_block : assign_stmt .  (22)
+
+	.  reduce 22
+
+
+state 20
+	if_block : set_assign_stmt .  (28)
+
+	.  reduce 28
+
+
+state 21
+	matched_stmt : if_block .  (14)
+
+	.  reduce 14
+
+
+state 22
+	if_block : loop_stmt .  (20)
+
+	.  reduce 20
+
+
+state 23
+	if_block : func_stmt .  (21)
+
+	.  reduce 21
+
+
+state 24
+	if_block : return_stmt .  (23)
+
+	.  reduce 23
+
+
+state 25
+	if_block : stream_stmt .  (24)
+
+	.  reduce 24
+
+
+state 26
+	if_block : delete_stmt .  (26)
+
+	.  reduce 26
+
+
+state 27
+	if_block : comment .  (27)
+
+	.  reduce 27
+
+
+state 28
+	loop_stmt : for_stmt .  (31)
+
+	.  reduce 31
+
+
+state 29
+	loop_stmt : while_stmt .  (32)
+
+	.  reduce 32
+
+
+state 30
+	func_stmt : func_call .  (110)
+
+	.  reduce 110
+
+
+state 31
+	func_stmt : func_dec .  (109)
+
+	.  reduce 109
+
+
+state 32
+	func_stmt : prim_set_func_call .  (111)
+
+	.  reduce 111
+
+
+state 33
+	stream_stmt : input_stmt .  (133)
+
+	.  reduce 133
+
+
+state 34
+	stream_stmt : output_stmt .  (134)
+
+	.  reduce 134
+
+
+state 35
+	output_stmt : GRIFFOUT LP . output_to RP OUTPUT_STREAM output_from  (139)
+
+	GRIFFILE  shift 66
+	CONSOLE  shift 67
+	IDENTIFIER  shift 68
+	.  error
+
+	file_constant  goto 69
+	output_to  goto 70
+
+
+state 36
+	prim_set_func : IS_EMPTY .  (83)
+
+	.  reduce 83
+
+
+state 37
+	prim_set_func : ADD_ELEMENT .  (80)
+
+	.  reduce 80
+
+
+state 38
+	prim_set_func : DELETE_ELEMENT .  (81)
+
+	.  reduce 81
+
+
+state 39
+	prim_set_func : GET_ELEMENT .  (79)
+
+	.  reduce 79
+
+
+state 40
+	prim_set_func : GET_CARDINALITY .  (78)
+
+	.  reduce 78
+
+
+state 41
+	set_constant : LB . set_elements RB  (63)
+
+	STRING  shift 55
+	INT  shift 56
+	FLOAT  shift 57
+	CHAR  shift 58
+	IDENTIFIER  shift 71
+	BOOLEAN  shift 60
+	.  error
+
+	set_elements  goto 72
+	constant  goto 73
+
+
+state 42
+	func_call : FUNCTION_CALL_IDENTIFIER IDENTIFIER . LP param_list RP  (129)
+	prim_set_func_call : FUNCTION_CALL_IDENTIFIER IDENTIFIER . DOT prim_set_func LP param_list RP  (131)
+
+	DOT  shift 74
+	LP  shift 75
+	.  error
+
+
+state 43
+	prim_set_func : CONTAINS .  (82)
+
+	.  reduce 82
+
+
+state 44
+	prim_set_func_call : FUNCTION_CALL_IDENTIFIER set_constant . DOT prim_set_func LP param_list RP  (132)
+
+	DOT  shift 76
+	.  error
+
+
+state 45
+	func_call : FUNCTION_CALL_IDENTIFIER prim_set_func . LP param_list RP  (130)
+
+	LP  shift 77
+	.  error
+
+
+state 46
+	comment : COMMENT NL .  (73)
+
+	.  reduce 73
+
+
+state 47
+	matched_stmt : IF LP . cond_expr RP LB matched_stmt RB ELSE LB matched_stmt  (13)
+	unmatched_stmt : IF LP . cond_expr RP stmt  (15)
+	unmatched_stmt : IF LP . cond_expr RP LB matched_stmt RB ELSE LB unmatched_stmt RB  (16)
+	unmatched_stmt : IF LP . cond_expr RP LB stmts RB ELSE LB stmts RB  (17)
+	unmatched_stmt : IF LP . cond_expr RP LB stmts RB  (18)
+
+	FUNCTION_CALL_IDENTIFIER  shift 78
+	LP  shift 79
+	LB  shift 41
+	IDENTIFIER  shift 80
+	BOOLEAN  shift 81
+	.  error
+
+	set_expr_identifiers  goto 82
+	cond_expr  goto 83
+	set_cond_expr  goto 84
+	equality_expr  goto 85
+	equal_condition_elements  goto 86
+	arith_relational_expr  goto 87
+	logic_expr  goto 88
+	logic_expr_element  goto 89
+	set_constant  goto 90
+	func_call  goto 91
+
+
+state 48
+	input_stmt : GRIFFIN LP . input_from RP INPUT_STREAM IDENTIFIER  (135)
+
+	GRIFFILE  shift 66
+	CONSOLE  shift 92
+	IDENTIFIER  shift 93
+	.  error
+
+	input_from  goto 94
+	file_constant  goto 95
+
+
+state 49
+	for_stmt : FOR LP . dec_stmt SC cond_expr SC arith_expr RP LB stmts RB  (33)
+
+	IDENTIFIER  shift 96
+	.  error
+
+	dec_stmt  goto 97
+
+
+state 50
+	func_dec : FUNC_IDENTIFIER IDENTIFIER . LP param_dec_list RP COLON func_dec_primitive LB stmts RB  (112)
+
+	LP  shift 98
+	.  error
+
+
+state 51
+	while_stmt : WHILE LP . cond_expr RP LB stmts RB  (34)
+
+	FUNCTION_CALL_IDENTIFIER  shift 78
+	LP  shift 79
+	LB  shift 41
+	IDENTIFIER  shift 80
+	BOOLEAN  shift 81
+	.  error
+
+	set_expr_identifiers  goto 82
+	cond_expr  goto 99
+	set_cond_expr  goto 84
+	equality_expr  goto 85
+	equal_condition_elements  goto 86
+	arith_relational_expr  goto 87
+	logic_expr  goto 88
+	logic_expr_element  goto 89
+	set_constant  goto 90
+	func_call  goto 91
+
+
+state 52
+	dec_stmt : IDENTIFIER COLON . primitive_type ASSIGN_OP expression  (7)
+	dec_stmt : IDENTIFIER COLON . primitive_type  (8)
+	set_dec_stmt : IDENTIFIER COLON . SET_IDENTIFIER  (9)
+	set_dec_stmt : IDENTIFIER COLON . SET_IDENTIFIER ASSIGN_OP set_expr  (10)
+
+	SET_IDENTIFIER  shift 100
+	INT_TYPE  shift 101
+	STRING_TYPE  shift 102
+	FLOAT_TYPE  shift 103
+	CHAR_TYPE  shift 104
+	BOOLEAN_TYPE  shift 105
+	.  error
+
+	primitive_type  goto 106
+
+
+state 53
+	assign_stmt : IDENTIFIER ASSIGN_OP . expression  (11)
+	set_assign_stmt : IDENTIFIER ASSIGN_OP . set_expr_identifiers  (12)
+
+	FUNCTION_CALL_IDENTIFIER  shift 78
+	INT  shift 107
+	FLOAT  shift 108
+	LB  shift 41
+	IDENTIFIER  shift 109
+	.  error
+
+	expression  goto 110
+	set_expr_identifiers  goto 111
+	arith_expr  goto 112
+	set_constant  goto 90
+	func_call  goto 113
+	arith_expr_identifiers  goto 114
+
+
+state 54
+	delete_stmt : DELETE_TYPE IDENTIFIER .  (62)
+
+	.  reduce 62
+
+
+state 55
+	constant : STRING .  (68)
+
+	.  reduce 68
+
+
+state 56
+	constant : INT .  (69)
+
+	.  reduce 69
+
+
+state 57
+	constant : FLOAT .  (70)
+
+	.  reduce 70
+
+
+state 58
+	constant : CHAR .  (71)
+
+	.  reduce 71
+
+
+state 59
+	return_stmt : RETURN IDENTIFIER .  (29)
+
+	.  reduce 29
+
+
+state 60
+	constant : BOOLEAN .  (72)
+
+	.  reduce 72
+
+
+state 61
+	return_stmt : RETURN constant_list .  (30)
+
+	.  reduce 30
+
+
+state 62
+	constant_list : set_constant .  (123)
+
+	.  reduce 123
+
+
+state 63
+	constant_list : constant .  (122)
+
+	.  reduce 122
+
+
+state 64
+	stmts : stmt SC .  (3)
+	stmts : stmt SC . NL  (4)
+
+	NL  shift 115
+	$end  reduce 3
+	RB  reduce 3
+
+
+state 65
+	stmts : stmt stmt . SC  (2)
+
+	SC  shift 116
+	.  error
+
+
+state 66
+	file_constant : GRIFFILE . LP STRING RP  (146)
+
+	LP  shift 117
+	.  error
+
+
+state 67
+	output_to : CONSOLE .  (140)
+
+	.  reduce 140
+
+
+state 68
+	output_to : IDENTIFIER .  (141)
+
+	.  reduce 141
+
+
+state 69
+	output_to : file_constant .  (142)
+
+	.  reduce 142
+
+
+state 70
+	output_stmt : GRIFFOUT LP output_to . RP OUTPUT_STREAM output_from  (139)
+
+	RP  shift 118
+	.  error
+
+
+state 71
+	set_elements : IDENTIFIER .  (65)
+	set_elements : IDENTIFIER . COMMA set_elements  (67)
+
+	COMMA  shift 119
+	RB  reduce 65
+
+
+state 72
+	set_constant : LB set_elements . RB  (63)
+
+	RB  shift 120
+	.  error
+
+
+state 73
+	set_elements : constant .  (64)
+	set_elements : constant . COMMA set_elements  (66)
+
+	COMMA  shift 121
+	RB  reduce 64
+
+
+state 74
+	prim_set_func_call : FUNCTION_CALL_IDENTIFIER IDENTIFIER DOT . prim_set_func LP param_list RP  (131)
+
+	IS_EMPTY  shift 36
+	ADD_ELEMENT  shift 37
+	DELETE_ELEMENT  shift 38
+	GET_ELEMENT  shift 39
+	GET_CARDINALITY  shift 40
+	CONTAINS  shift 43
+	.  error
+
+	prim_set_func  goto 122
+
+
+state 75
+	func_call : FUNCTION_CALL_IDENTIFIER IDENTIFIER LP . param_list RP  (129)
+	empty : .  (147)
+
+	STRING  shift 55
+	INT  shift 56
+	FLOAT  shift 57
+	CHAR  shift 58
+	LB  shift 41
+	IDENTIFIER  shift 123
+	BOOLEAN  shift 60
+	RP  reduce 147
+
+	constant_list  goto 124
+	set_constant  goto 62
+	constant  goto 63
+	empty  goto 125
+	param_list  goto 126
+
+
+state 76
+	prim_set_func_call : FUNCTION_CALL_IDENTIFIER set_constant DOT . prim_set_func LP param_list RP  (132)
+
+	IS_EMPTY  shift 36
+	ADD_ELEMENT  shift 37
+	DELETE_ELEMENT  shift 38
+	GET_ELEMENT  shift 39
+	GET_CARDINALITY  shift 40
+	CONTAINS  shift 43
+	.  error
+
+	prim_set_func  goto 127
+
+
+state 77
+	func_call : FUNCTION_CALL_IDENTIFIER prim_set_func LP . param_list RP  (130)
+	empty : .  (147)
+
+	STRING  shift 55
+	INT  shift 56
+	FLOAT  shift 57
+	CHAR  shift 58
+	LB  shift 41
+	IDENTIFIER  shift 123
+	BOOLEAN  shift 60
+	RP  reduce 147
+
+	constant_list  goto 124
+	set_constant  goto 62
+	constant  goto 63
+	empty  goto 125
+	param_list  goto 128
+
+
+state 78
+	func_call : FUNCTION_CALL_IDENTIFIER . IDENTIFIER LP param_list RP  (129)
+	func_call : FUNCTION_CALL_IDENTIFIER . prim_set_func LP param_list RP  (130)
+
+	IS_EMPTY  shift 36
+	ADD_ELEMENT  shift 37
+	DELETE_ELEMENT  shift 38
+	GET_ELEMENT  shift 39
+	GET_CARDINALITY  shift 40
+	IDENTIFIER  shift 129
+	CONTAINS  shift 43
+	.  error
+
+	prim_set_func  goto 45
+
+
+state 79
+	arith_relational_expr : LP . arith_relational_elements relational_op arith_relational_expr RP  (42)
+
+	INT  shift 130
+	FLOAT  shift 131
+	IDENTIFIER  shift 132
+	.  error
+
+	arith_relational_elements  goto 133
+
+
+state 80
+	logic_expr_element : IDENTIFIER .  (48)
+	set_expr_identifiers : IDENTIFIER .  (53)
+
+	DOT  reduce 53
+	SC  reduce 48
+	EQUALS_RELATION  reduce 48
+	OR_RELATION  reduce 48
+	AND_RELATION  reduce 48
+	NOT_EQUAL  reduce 48
+	RP  reduce 48
+
+
+state 81
+	logic_expr_element : BOOLEAN .  (49)
+
+	.  reduce 49
+
+
+state 82
+	set_cond_expr : set_expr_identifiers . DOT set_cond_op LP set_expr_identifiers RP  (52)
+
+	DOT  shift 134
+	.  error
+
+
+state 83
+	matched_stmt : IF LP cond_expr . RP LB matched_stmt RB ELSE LB matched_stmt  (13)
+	unmatched_stmt : IF LP cond_expr . RP stmt  (15)
+	unmatched_stmt : IF LP cond_expr . RP LB matched_stmt RB ELSE LB unmatched_stmt RB  (16)
+	unmatched_stmt : IF LP cond_expr . RP LB stmts RB ELSE LB stmts RB  (17)
+	unmatched_stmt : IF LP cond_expr . RP LB stmts RB  (18)
+
+	RP  shift 135
+	.  error
+
+
+state 84
+	cond_expr : set_cond_expr .  (36)
+
+	.  reduce 36
+
+
+state 85
+	cond_expr : equality_expr .  (37)
+	equality_expr : equality_expr . EQUALS_RELATION equal_condition_elements  (39)
+
+	EQUALS_RELATION  shift 136
+	SC  reduce 37
+	RP  reduce 37
+
+
+state 86
+	equality_expr : equal_condition_elements .  (38)
+
+	.  reduce 38
+
+
+state 87
+	equal_condition_elements : arith_relational_expr .  (40)
+
+	.  reduce 40
+
+
+state 88
+	equal_condition_elements : logic_expr .  (41)
+
+	.  reduce 41
+
+
+state 89
+	logic_expr : logic_expr_element .  (46)
+	logic_expr : logic_expr_element . logic_op logic_expr  (47)
+
+	OR_RELATION  shift 137
+	AND_RELATION  shift 138
+	NOT_EQUAL  shift 139
+	SC  reduce 46
+	EQUALS_RELATION  reduce 46
+	RP  reduce 46
+
+	logic_op  goto 140
+
+
+state 90
+	set_expr_identifiers : set_constant .  (54)
+
+	.  reduce 54
+
+
+state 91
+	set_expr_identifiers : func_call .  (55)
+
+	.  reduce 55
+
+
+state 92
+	input_from : CONSOLE .  (137)
+
+	.  reduce 137
+
+
+state 93
+	input_from : IDENTIFIER .  (136)
+
+	.  reduce 136
+
+
+state 94
+	input_stmt : GRIFFIN LP input_from . RP INPUT_STREAM IDENTIFIER  (135)
+
+	RP  shift 141
+	.  error
+
+
+state 95
+	input_from : file_constant .  (138)
+
+	.  reduce 138
+
+
+state 96
+	dec_stmt : IDENTIFIER . COLON primitive_type ASSIGN_OP expression  (7)
+	dec_stmt : IDENTIFIER . COLON primitive_type  (8)
+
+	COLON  shift 142
+	.  error
+
+
+state 97
+	for_stmt : FOR LP dec_stmt . SC cond_expr SC arith_expr RP LB stmts RB  (33)
+
+	SC  shift 143
+	.  error
+
+
+state 98
+	func_dec : FUNC_IDENTIFIER IDENTIFIER LP . param_dec_list RP COLON func_dec_primitive LB stmts RB  (112)
+	empty : .  (147)
+
+	IDENTIFIER  shift 144
+	RP  reduce 147
+
+	param_dec_list  goto 145
+	empty  goto 146
+
+
+state 99
+	while_stmt : WHILE LP cond_expr . RP LB stmts RB  (34)
+
+	RP  shift 147
+	.  error
+
+
+state 100
+	set_dec_stmt : IDENTIFIER COLON SET_IDENTIFIER .  (9)
+	set_dec_stmt : IDENTIFIER COLON SET_IDENTIFIER . ASSIGN_OP set_expr  (10)
+
+	ASSIGN_OP  shift 148
+	GRIFFOUT  reduce 9
+	FUNCTION_CALL_IDENTIFIER  reduce 9
+	COMMENT  reduce 9
+	IF  reduce 9
+	GRIFFIN  reduce 9
+	SC  reduce 9
+	FOR  reduce 9
+	FUNC_IDENTIFIER  reduce 9
+	WHILE  reduce 9
+	RB  reduce 9
+	IDENTIFIER  reduce 9
+	DELETE_TYPE  reduce 9
+	RETURN  reduce 9
+
+
+state 101
+	primitive_type : INT_TYPE .  (105)
+
+	.  reduce 105
+
+
+state 102
+	primitive_type : STRING_TYPE .  (104)
+
+	.  reduce 104
+
+
+state 103
+	primitive_type : FLOAT_TYPE .  (106)
+
+	.  reduce 106
+
+
+state 104
+	primitive_type : CHAR_TYPE .  (107)
+
+	.  reduce 107
+
+
+state 105
+	primitive_type : BOOLEAN_TYPE .  (108)
+
+	.  reduce 108
+
+
+state 106
+	dec_stmt : IDENTIFIER COLON primitive_type . ASSIGN_OP expression  (7)
+	dec_stmt : IDENTIFIER COLON primitive_type .  (8)
+
+	ASSIGN_OP  shift 149
+	GRIFFOUT  reduce 8
+	FUNCTION_CALL_IDENTIFIER  reduce 8
+	COMMENT  reduce 8
+	IF  reduce 8
+	GRIFFIN  reduce 8
+	SC  reduce 8
+	FOR  reduce 8
+	FUNC_IDENTIFIER  reduce 8
+	WHILE  reduce 8
+	RB  reduce 8
+	IDENTIFIER  reduce 8
+	DELETE_TYPE  reduce 8
+	RETURN  reduce 8
+
+
+state 107
+	arith_expr_identifiers : INT .  (59)
+
+	.  reduce 59
+
+
+state 108
+	arith_expr_identifiers : FLOAT .  (60)
+
+	.  reduce 60
+
+
+109: reduce/reduce conflict (reduce 53, reduce 58) on GRIFFOUT
+109: reduce/reduce conflict (reduce 53, reduce 58) on FUNCTION_CALL_IDENTIFIER
+109: reduce/reduce conflict (reduce 53, reduce 58) on COMMENT
+109: reduce/reduce conflict (reduce 53, reduce 58) on IF
+109: reduce/reduce conflict (reduce 53, reduce 58) on GRIFFIN
+109: reduce/reduce conflict (reduce 53, reduce 58) on SC
+109: reduce/reduce conflict (reduce 53, reduce 58) on FOR
+109: reduce/reduce conflict (reduce 53, reduce 58) on FUNC_IDENTIFIER
+109: reduce/reduce conflict (reduce 53, reduce 58) on WHILE
+109: reduce/reduce conflict (reduce 53, reduce 58) on RB
+109: reduce/reduce conflict (reduce 53, reduce 58) on IDENTIFIER
+109: reduce/reduce conflict (reduce 53, reduce 58) on DELETE_TYPE
+109: reduce/reduce conflict (reduce 53, reduce 58) on RETURN
+state 109
+	set_expr_identifiers : IDENTIFIER .  (53)
+	arith_expr_identifiers : IDENTIFIER .  (58)
+
+	GRIFFOUT  reduce 53
+	FUNCTION_CALL_IDENTIFIER  reduce 53
+	COMMENT  reduce 53
+	IF  reduce 53
+	GRIFFIN  reduce 53
+	SC  reduce 53
+	PLUS  reduce 58
+	MINUS  reduce 58
+	MULTIPLY  reduce 58
+	DIVIDE  reduce 58
+	MOD  reduce 58
+	FOR  reduce 53
+	FUNC_IDENTIFIER  reduce 53
+	WHILE  reduce 53
+	RB  reduce 53
+	IDENTIFIER  reduce 53
+	DELETE_TYPE  reduce 53
+	RETURN  reduce 53
+
+
+state 110
+	assign_stmt : IDENTIFIER ASSIGN_OP expression .  (11)
+
+	.  reduce 11
+
+
+state 111
+	set_assign_stmt : IDENTIFIER ASSIGN_OP set_expr_identifiers .  (12)
+
+	.  reduce 12
+
+
+state 112
+	expression : arith_expr .  (35)
+
+	.  reduce 35
+
+
+113: reduce/reduce conflict (reduce 55, reduce 61) on GRIFFOUT
+113: reduce/reduce conflict (reduce 55, reduce 61) on FUNCTION_CALL_IDENTIFIER
+113: reduce/reduce conflict (reduce 55, reduce 61) on COMMENT
+113: reduce/reduce conflict (reduce 55, reduce 61) on IF
+113: reduce/reduce conflict (reduce 55, reduce 61) on GRIFFIN
+113: reduce/reduce conflict (reduce 55, reduce 61) on SC
+113: reduce/reduce conflict (reduce 55, reduce 61) on FOR
+113: reduce/reduce conflict (reduce 55, reduce 61) on FUNC_IDENTIFIER
+113: reduce/reduce conflict (reduce 55, reduce 61) on WHILE
+113: reduce/reduce conflict (reduce 55, reduce 61) on RB
+113: reduce/reduce conflict (reduce 55, reduce 61) on IDENTIFIER
+113: reduce/reduce conflict (reduce 55, reduce 61) on DELETE_TYPE
+113: reduce/reduce conflict (reduce 55, reduce 61) on RETURN
+state 113
+	set_expr_identifiers : func_call .  (55)
+	arith_expr_identifiers : func_call .  (61)
+
+	GRIFFOUT  reduce 55
+	FUNCTION_CALL_IDENTIFIER  reduce 55
+	COMMENT  reduce 55
+	IF  reduce 55
+	GRIFFIN  reduce 55
+	SC  reduce 55
+	PLUS  reduce 61
+	MINUS  reduce 61
+	MULTIPLY  reduce 61
+	DIVIDE  reduce 61
+	MOD  reduce 61
+	FOR  reduce 55
+	FUNC_IDENTIFIER  reduce 55
+	WHILE  reduce 55
+	RB  reduce 55
+	IDENTIFIER  reduce 55
+	DELETE_TYPE  reduce 55
+	RETURN  reduce 55
+
+
+state 114
+	arith_expr : arith_expr_identifiers .  (56)
+	arith_expr : arith_expr_identifiers . arith_op arith_expr  (57)
+
+	PLUS  shift 150
+	MINUS  shift 151
+	MULTIPLY  shift 152
+	DIVIDE  shift 153
+	MOD  shift 154
+	GRIFFOUT  reduce 56
+	FUNCTION_CALL_IDENTIFIER  reduce 56
+	COMMENT  reduce 56
+	IF  reduce 56
+	GRIFFIN  reduce 56
+	SC  reduce 56
+	FOR  reduce 56
+	FUNC_IDENTIFIER  reduce 56
+	WHILE  reduce 56
+	RP  reduce 56
+	RB  reduce 56
+	IDENTIFIER  reduce 56
+	DELETE_TYPE  reduce 56
+	RETURN  reduce 56
+
+	arith_op  goto 155
+
+
+state 115
+	stmts : stmt SC NL .  (4)
+
+	.  reduce 4
+
+
+state 116
+	stmts : stmt stmt SC .  (2)
+
+	.  reduce 2
+
+
+state 117
+	file_constant : GRIFFILE LP . STRING RP  (146)
+
+	STRING  shift 156
+	.  error
+
+
+state 118
+	output_stmt : GRIFFOUT LP output_to RP . OUTPUT_STREAM output_from  (139)
+
+	OUTPUT_STREAM  shift 157
+	.  error
+
+
+state 119
+	set_elements : IDENTIFIER COMMA . set_elements  (67)
+
+	STRING  shift 55
+	INT  shift 56
+	FLOAT  shift 57
+	CHAR  shift 58
+	IDENTIFIER  shift 71
+	BOOLEAN  shift 60
+	.  error
+
+	set_elements  goto 158
+	constant  goto 73
+
+
+state 120
+	set_constant : LB set_elements RB .  (63)
+
+	.  reduce 63
+
+
+state 121
+	set_elements : constant COMMA . set_elements  (66)
+
+	STRING  shift 55
+	INT  shift 56
+	FLOAT  shift 57
+	CHAR  shift 58
+	IDENTIFIER  shift 71
+	BOOLEAN  shift 60
+	.  error
+
+	set_elements  goto 159
+	constant  goto 73
+
+
+state 122
+	prim_set_func_call : FUNCTION_CALL_IDENTIFIER IDENTIFIER DOT prim_set_func . LP param_list RP  (131)
+
+	LP  shift 160
+	.  error
+
+
+state 123
+	param_list : IDENTIFIER .  (124)
+	param_list : IDENTIFIER . COMMA param_list  (127)
+
+	COMMA  shift 161
+	RP  reduce 124
+
+
+state 124
+	param_list : constant_list .  (126)
+	param_list : constant_list . COMMA constant_list  (128)
+
+	COMMA  shift 162
+	RP  reduce 126
+
+
+state 125
+	param_list : empty .  (125)
+
+	.  reduce 125
+
+
+state 126
+	func_call : FUNCTION_CALL_IDENTIFIER IDENTIFIER LP param_list . RP  (129)
+
+	RP  shift 163
+	.  error
+
+
+state 127
+	prim_set_func_call : FUNCTION_CALL_IDENTIFIER set_constant DOT prim_set_func . LP param_list RP  (132)
+
+	LP  shift 164
+	.  error
+
+
+state 128
+	func_call : FUNCTION_CALL_IDENTIFIER prim_set_func LP param_list . RP  (130)
+
+	RP  shift 165
+	.  error
+
+
+state 129
+	func_call : FUNCTION_CALL_IDENTIFIER IDENTIFIER . LP param_list RP  (129)
+
+	LP  shift 75
+	.  error
+
+
+state 130
+	arith_relational_elements : INT .  (44)
+
+	.  reduce 44
+
+
+state 131
+	arith_relational_elements : FLOAT .  (45)
+
+	.  reduce 45
+
+
+state 132
+	arith_relational_elements : IDENTIFIER .  (43)
+
+	.  reduce 43
+
+
+state 133
+	arith_relational_expr : LP arith_relational_elements . relational_op arith_relational_expr RP  (42)
+
+	EQUALS_RELATION  shift 166
+	GTE  shift 167
+	LTE  shift 168
+	LT  shift 169
+	GT  shift 170
+	.  error
+
+	relational_op  goto 171
+
+
+state 134
+	set_cond_expr : set_expr_identifiers DOT . set_cond_op LP set_expr_identifiers RP  (52)
+	set_cond_op : .  (101)
+
+	IS_DISJOINT  shift 172
+	IS_SUBSET  shift 173
+	IS_SUPERSET  shift 174
+	IS_EQUVAILENT  shift 175
+	IS_OVERLAPPING  shift 176
+	IS_EQUAL  shift 177
+	LP  reduce 101
+
+	set_cond_op  goto 178
+
+
+state 135
+	matched_stmt : IF LP cond_expr RP . LB matched_stmt RB ELSE LB matched_stmt  (13)
+	unmatched_stmt : IF LP cond_expr RP . stmt  (15)
+	unmatched_stmt : IF LP cond_expr RP . LB matched_stmt RB ELSE LB unmatched_stmt RB  (16)
+	unmatched_stmt : IF LP cond_expr RP . LB stmts RB ELSE LB stmts RB  (17)
+	unmatched_stmt : IF LP cond_expr RP . LB stmts RB  (18)
+
+	GRIFFOUT  shift 1
+	FUNCTION_CALL_IDENTIFIER  shift 2
+	COMMENT  shift 3
+	IF  shift 4
+	GRIFFIN  shift 5
+	FOR  shift 6
+	FUNC_IDENTIFIER  shift 7
+	WHILE  shift 8
+	LB  shift 179
+	IDENTIFIER  shift 9
+	DELETE_TYPE  shift 10
+	RETURN  shift 11
+	.  error
+
+	stmt  goto 180
+	matched_stmt  goto 15
+	unmatched_stmt  goto 16
+	dec_stmt  goto 17
+	set_dec_stmt  goto 18
+	assign_stmt  goto 19
+	set_assign_stmt  goto 20
+	if_block  goto 21
+	loop_stmt  goto 22
+	func_stmt  goto 23
+	return_stmt  goto 24
+	stream_stmt  goto 25
+	delete_stmt  goto 26
+	comment  goto 27
+	for_stmt  goto 28
+	while_stmt  goto 29
+	func_call  goto 30
+	func_dec  goto 31
+	prim_set_func_call  goto 32
+	input_stmt  goto 33
+	output_stmt  goto 34
+
+
+state 136
+	equality_expr : equality_expr EQUALS_RELATION . equal_condition_elements  (39)
+
+	LP  shift 79
+	IDENTIFIER  shift 181
+	BOOLEAN  shift 81
+	.  error
+
+	equal_condition_elements  goto 182
+	arith_relational_expr  goto 87
+	logic_expr  goto 88
+	logic_expr_element  goto 89
+
+
+state 137
+	logic_op : OR_RELATION .  (91)
+
+	.  reduce 91
+
+
+state 138
+	logic_op : AND_RELATION .  (90)
+
+	.  reduce 90
+
+
+state 139
+	logic_op : NOT_EQUAL .  (89)
+
+	.  reduce 89
+
+
+state 140
+	logic_expr : logic_expr_element logic_op . logic_expr  (47)
+
+	IDENTIFIER  shift 181
+	BOOLEAN  shift 81
+	.  error
+
+	logic_expr  goto 183
+	logic_expr_element  goto 89
+
+
+state 141
+	input_stmt : GRIFFIN LP input_from RP . INPUT_STREAM IDENTIFIER  (135)
+
+	INPUT_STREAM  shift 184
+	.  error
+
+
+state 142
+	dec_stmt : IDENTIFIER COLON . primitive_type ASSIGN_OP expression  (7)
+	dec_stmt : IDENTIFIER COLON . primitive_type  (8)
+
+	INT_TYPE  shift 101
+	STRING_TYPE  shift 102
+	FLOAT_TYPE  shift 103
+	CHAR_TYPE  shift 104
+	BOOLEAN_TYPE  shift 105
+	.  error
+
+	primitive_type  goto 106
+
+
+state 143
+	for_stmt : FOR LP dec_stmt SC . cond_expr SC arith_expr RP LB stmts RB  (33)
+
+	FUNCTION_CALL_IDENTIFIER  shift 78
+	LP  shift 79
+	LB  shift 41
+	IDENTIFIER  shift 80
+	BOOLEAN  shift 81
+	.  error
+
+	set_expr_identifiers  goto 82
+	cond_expr  goto 185
+	set_cond_expr  goto 84
+	equality_expr  goto 85
+	equal_condition_elements  goto 86
+	arith_relational_expr  goto 87
+	logic_expr  goto 88
+	logic_expr_element  goto 89
+	set_constant  goto 90
+	func_call  goto 91
+
+
+state 144
+	param_dec_list : IDENTIFIER . COLON param_dec_type  (120)
+	param_dec_list : IDENTIFIER . COLON param_dec_type COMMA param_dec_type  (121)
+
+	COLON  shift 186
+	.  error
+
+
+state 145
+	func_dec : FUNC_IDENTIFIER IDENTIFIER LP param_dec_list . RP COLON func_dec_primitive LB stmts RB  (112)
+
+	RP  shift 187
+	.  error
+
+
+state 146
+	param_dec_list : empty .  (119)
+
+	.  reduce 119
+
+
+state 147
+	while_stmt : WHILE LP cond_expr RP . LB stmts RB  (34)
+
+	LB  shift 188
+	.  error
+
+
+state 148
+	set_dec_stmt : IDENTIFIER COLON SET_IDENTIFIER ASSIGN_OP . set_expr  (10)
+
+	FUNCTION_CALL_IDENTIFIER  shift 78
+	LB  shift 41
+	IDENTIFIER  shift 189
+	.  error
+
+	set_expr  goto 190
+	set_expr_identifiers  goto 191
+	set_constant  goto 90
+	func_call  goto 91
+
+
+state 149
+	dec_stmt : IDENTIFIER COLON primitive_type ASSIGN_OP . expression  (7)
+
+	FUNCTION_CALL_IDENTIFIER  shift 78
+	INT  shift 107
+	FLOAT  shift 108
+	IDENTIFIER  shift 192
+	.  error
+
+	expression  goto 193
+	arith_expr  goto 112
+	func_call  goto 194
+	arith_expr_identifiers  goto 114
+
+
+state 150
+	arith_op : PLUS .  (84)
+
+	.  reduce 84
+
+
+state 151
+	arith_op : MINUS .  (85)
+
+	.  reduce 85
+
+
+state 152
+	arith_op : MULTIPLY .  (87)
+
+	.  reduce 87
+
+
+state 153
+	arith_op : DIVIDE .  (86)
+
+	.  reduce 86
+
+
+state 154
+	arith_op : MOD .  (88)
+
+	.  reduce 88
+
+
+state 155
+	arith_expr : arith_expr_identifiers arith_op . arith_expr  (57)
+
+	FUNCTION_CALL_IDENTIFIER  shift 78
+	INT  shift 107
+	FLOAT  shift 108
+	IDENTIFIER  shift 192
+	.  error
+
+	arith_expr  goto 195
+	func_call  goto 194
+	arith_expr_identifiers  goto 114
+
+
+state 156
+	file_constant : GRIFFILE LP STRING . RP  (146)
+
+	RP  shift 196
+	.  error
+
+
+state 157
+	output_stmt : GRIFFOUT LP output_to RP OUTPUT_STREAM . output_from  (139)
+
+	STRING  shift 55
+	INT  shift 56
+	FLOAT  shift 57
+	CHAR  shift 58
+	LB  shift 41
+	IDENTIFIER  shift 197
+	BOOLEAN  shift 60
+	.  error
+
+	set_constant  goto 198
+	constant  goto 199
+	output_from  goto 200
+
+
+state 158
+	set_elements : IDENTIFIER COMMA set_elements .  (67)
+
+	.  reduce 67
+
+
+state 159
+	set_elements : constant COMMA set_elements .  (66)
+
+	.  reduce 66
+
+
+state 160
+	prim_set_func_call : FUNCTION_CALL_IDENTIFIER IDENTIFIER DOT prim_set_func LP . param_list RP  (131)
+	empty : .  (147)
+
+	STRING  shift 55
+	INT  shift 56
+	FLOAT  shift 57
+	CHAR  shift 58
+	LB  shift 41
+	IDENTIFIER  shift 123
+	BOOLEAN  shift 60
+	RP  reduce 147
+
+	constant_list  goto 124
+	set_constant  goto 62
+	constant  goto 63
+	empty  goto 125
+	param_list  goto 201
+
+
+state 161
+	param_list : IDENTIFIER COMMA . param_list  (127)
+	empty : .  (147)
+
+	STRING  shift 55
+	INT  shift 56
+	FLOAT  shift 57
+	CHAR  shift 58
+	LB  shift 41
+	IDENTIFIER  shift 123
+	BOOLEAN  shift 60
+	RP  reduce 147
+
+	constant_list  goto 124
+	set_constant  goto 62
+	constant  goto 63
+	empty  goto 125
+	param_list  goto 202
+
+
+state 162
+	param_list : constant_list COMMA . constant_list  (128)
+
+	STRING  shift 55
+	INT  shift 56
+	FLOAT  shift 57
+	CHAR  shift 58
+	LB  shift 41
+	BOOLEAN  shift 60
+	.  error
+
+	constant_list  goto 203
+	set_constant  goto 62
+	constant  goto 63
+
+
+state 163
+	func_call : FUNCTION_CALL_IDENTIFIER IDENTIFIER LP param_list RP .  (129)
+
+	.  reduce 129
+
+
+state 164
+	prim_set_func_call : FUNCTION_CALL_IDENTIFIER set_constant DOT prim_set_func LP . param_list RP  (132)
+	empty : .  (147)
+
+	STRING  shift 55
+	INT  shift 56
+	FLOAT  shift 57
+	CHAR  shift 58
+	LB  shift 41
+	IDENTIFIER  shift 123
+	BOOLEAN  shift 60
+	RP  reduce 147
+
+	constant_list  goto 124
+	set_constant  goto 62
+	constant  goto 63
+	empty  goto 125
+	param_list  goto 204
+
+
+state 165
+	func_call : FUNCTION_CALL_IDENTIFIER prim_set_func LP param_list RP .  (130)
+
+	.  reduce 130
+
+
+state 166
+	relational_op : EQUALS_RELATION .  (96)
+
+	.  reduce 96
+
+
+state 167
+	relational_op : GTE .  (95)
+
+	.  reduce 95
+
+
+state 168
+	relational_op : LTE .  (94)
+
+	.  reduce 94
+
+
+state 169
+	relational_op : LT .  (92)
+
+	.  reduce 92
+
+
+state 170
+	relational_op : GT .  (93)
+
+	.  reduce 93
+
+
+state 171
+	arith_relational_expr : LP arith_relational_elements relational_op . arith_relational_expr RP  (42)
+
+	LP  shift 79
+	.  error
+
+	arith_relational_expr  goto 205
+
+
+state 172
+	set_cond_op : IS_DISJOINT .  (103)
+
+	.  reduce 103
+
+
+state 173
+	set_cond_op : IS_SUBSET .  (98)
+
+	.  reduce 98
+
+
+state 174
+	set_cond_op : IS_SUPERSET .  (97)
+
+	.  reduce 97
+
+
+state 175
+	set_cond_op : IS_EQUVAILENT .  (100)
+
+	.  reduce 100
+
+
+state 176
+	set_cond_op : IS_OVERLAPPING .  (102)
+
+	.  reduce 102
+
+
+state 177
+	set_cond_op : IS_EQUAL .  (99)
+
+	.  reduce 99
+
+
+state 178
+	set_cond_expr : set_expr_identifiers DOT set_cond_op . LP set_expr_identifiers RP  (52)
+
+	LP  shift 206
+	.  error
+
+
+state 179
+	matched_stmt : IF LP cond_expr RP LB . matched_stmt RB ELSE LB matched_stmt  (13)
+	unmatched_stmt : IF LP cond_expr RP LB . matched_stmt RB ELSE LB unmatched_stmt RB  (16)
+	unmatched_stmt : IF LP cond_expr RP LB . stmts RB ELSE LB stmts RB  (17)
+	unmatched_stmt : IF LP cond_expr RP LB . stmts RB  (18)
+
+	GRIFFOUT  shift 1
+	FUNCTION_CALL_IDENTIFIER  shift 2
+	COMMENT  shift 3
+	IF  shift 4
+	GRIFFIN  shift 5
+	FOR  shift 6
+	FUNC_IDENTIFIER  shift 7
+	WHILE  shift 8
+	IDENTIFIER  shift 9
+	DELETE_TYPE  shift 10
+	RETURN  shift 11
+	.  error
+
+	stmts  goto 207
+	stmt  goto 14
+	matched_stmt  goto 208
+	unmatched_stmt  goto 16
+	dec_stmt  goto 17
+	set_dec_stmt  goto 18
+	assign_stmt  goto 19
+	set_assign_stmt  goto 20
+	if_block  goto 21
+	loop_stmt  goto 22
+	func_stmt  goto 23
+	return_stmt  goto 24
+	stream_stmt  goto 25
+	delete_stmt  goto 26
+	comment  goto 27
+	for_stmt  goto 28
+	while_stmt  goto 29
+	func_call  goto 30
+	func_dec  goto 31
+	prim_set_func_call  goto 32
+	input_stmt  goto 33
+	output_stmt  goto 34
+
+
+state 180
+	unmatched_stmt : IF LP cond_expr RP stmt .  (15)
+
+	.  reduce 15
+
+
+state 181
+	logic_expr_element : IDENTIFIER .  (48)
+
+	.  reduce 48
+
+
+state 182
+	equality_expr : equality_expr EQUALS_RELATION equal_condition_elements .  (39)
+
+	.  reduce 39
+
+
+state 183
+	logic_expr : logic_expr_element logic_op logic_expr .  (47)
+
+	.  reduce 47
+
+
+state 184
+	input_stmt : GRIFFIN LP input_from RP INPUT_STREAM . IDENTIFIER  (135)
+
+	IDENTIFIER  shift 209
+	.  error
+
+
+state 185
+	for_stmt : FOR LP dec_stmt SC cond_expr . SC arith_expr RP LB stmts RB  (33)
+
+	SC  shift 210
+	.  error
+
+
+state 186
+	param_dec_list : IDENTIFIER COLON . param_dec_type  (120)
+	param_dec_list : IDENTIFIER COLON . param_dec_type COMMA param_dec_type  (121)
+
+	SET_IDENTIFIER  shift 211
+	INT_TYPE  shift 101
+	STRING_TYPE  shift 102
+	FLOAT_TYPE  shift 103
+	CHAR_TYPE  shift 104
+	BOOLEAN_TYPE  shift 105
+	ELEMENT_IDENTIFIER  shift 212
+	.  error
+
+	primitive_type  goto 213
+	param_dec_type  goto 214
+
+
+state 187
+	func_dec : FUNC_IDENTIFIER IDENTIFIER LP param_dec_list RP . COLON func_dec_primitive LB stmts RB  (112)
+
+	COLON  shift 215
+	.  error
+
+
+state 188
+	while_stmt : WHILE LP cond_expr RP LB . stmts RB  (34)
+
+	GRIFFOUT  shift 1
+	FUNCTION_CALL_IDENTIFIER  shift 2
+	COMMENT  shift 3
+	IF  shift 4
+	GRIFFIN  shift 5
+	FOR  shift 6
+	FUNC_IDENTIFIER  shift 7
+	WHILE  shift 8
+	IDENTIFIER  shift 9
+	DELETE_TYPE  shift 10
+	RETURN  shift 11
+	.  error
+
+	stmts  goto 216
+	stmt  goto 14
+	matched_stmt  goto 15
+	unmatched_stmt  goto 16
+	dec_stmt  goto 17
+	set_dec_stmt  goto 18
+	assign_stmt  goto 19
+	set_assign_stmt  goto 20
+	if_block  goto 21
+	loop_stmt  goto 22
+	func_stmt  goto 23
+	return_stmt  goto 24
+	stream_stmt  goto 25
+	delete_stmt  goto 26
+	comment  goto 27
+	for_stmt  goto 28
+	while_stmt  goto 29
+	func_call  goto 30
+	func_dec  goto 31
+	prim_set_func_call  goto 32
+	input_stmt  goto 33
+	output_stmt  goto 34
+
+
+state 189
+	set_expr_identifiers : IDENTIFIER .  (53)
+
+	.  reduce 53
+
+
+state 190
+	set_dec_stmt : IDENTIFIER COLON SET_IDENTIFIER ASSIGN_OP set_expr .  (10)
+
+	.  reduce 10
+
+
+state 191
+	set_expr : set_expr_identifiers .  (50)
+	set_expr : set_expr_identifiers . set_op set_expr  (51)
+
+	UNION  shift 217
+	DIFF  shift 218
+	CROSS  shift 219
+	INTER  shift 220
+	GRIFFOUT  reduce 50
+	FUNCTION_CALL_IDENTIFIER  reduce 50
+	COMMENT  reduce 50
+	IF  reduce 50
+	GRIFFIN  reduce 50
+	SC  reduce 50
+	FOR  reduce 50
+	FUNC_IDENTIFIER  reduce 50
+	WHILE  reduce 50
+	RB  reduce 50
+	IDENTIFIER  reduce 50
+	DELETE_TYPE  reduce 50
+	RETURN  reduce 50
+
+	set_op  goto 221
+
+
+state 192
+	arith_expr_identifiers : IDENTIFIER .  (58)
+
+	.  reduce 58
+
+
+state 193
+	dec_stmt : IDENTIFIER COLON primitive_type ASSIGN_OP expression .  (7)
+
+	.  reduce 7
+
+
+state 194
+	arith_expr_identifiers : func_call .  (61)
+
+	.  reduce 61
+
+
+state 195
+	arith_expr : arith_expr_identifiers arith_op arith_expr .  (57)
+
+	.  reduce 57
+
+
+state 196
+	file_constant : GRIFFILE LP STRING RP .  (146)
+
+	.  reduce 146
+
+
+state 197
+	output_from : IDENTIFIER .  (143)
+
+	.  reduce 143
+
+
+state 198
+	output_from : set_constant .  (144)
+
+	.  reduce 144
+
+
+state 199
+	output_from : constant .  (145)
+
+	.  reduce 145
+
+
+state 200
+	output_stmt : GRIFFOUT LP output_to RP OUTPUT_STREAM output_from .  (139)
+
+	.  reduce 139
+
+
+state 201
+	prim_set_func_call : FUNCTION_CALL_IDENTIFIER IDENTIFIER DOT prim_set_func LP param_list . RP  (131)
+
+	RP  shift 222
+	.  error
+
+
+state 202
+	param_list : IDENTIFIER COMMA param_list .  (127)
+
+	.  reduce 127
+
+
+state 203
+	param_list : constant_list COMMA constant_list .  (128)
+
+	.  reduce 128
+
+
+state 204
+	prim_set_func_call : FUNCTION_CALL_IDENTIFIER set_constant DOT prim_set_func LP param_list . RP  (132)
+
+	RP  shift 223
+	.  error
+
+
+state 205
+	arith_relational_expr : LP arith_relational_elements relational_op arith_relational_expr . RP  (42)
+
+	RP  shift 224
+	.  error
+
+
+state 206
+	set_cond_expr : set_expr_identifiers DOT set_cond_op LP . set_expr_identifiers RP  (52)
+
+	FUNCTION_CALL_IDENTIFIER  shift 78
+	LB  shift 41
+	IDENTIFIER  shift 189
+	.  error
+
+	set_expr_identifiers  goto 225
+	set_constant  goto 90
+	func_call  goto 91
+
+
+state 207
+	unmatched_stmt : IF LP cond_expr RP LB stmts . RB ELSE LB stmts RB  (17)
+	unmatched_stmt : IF LP cond_expr RP LB stmts . RB  (18)
+
+	RB  shift 226
+	.  error
+
+
+state 208
+	stmt : matched_stmt .  (5)
+	matched_stmt : IF LP cond_expr RP LB matched_stmt . RB ELSE LB matched_stmt  (13)
+	unmatched_stmt : IF LP cond_expr RP LB matched_stmt . RB ELSE LB unmatched_stmt RB  (16)
+
+	RB  shift 227
+	GRIFFOUT  reduce 5
+	FUNCTION_CALL_IDENTIFIER  reduce 5
+	COMMENT  reduce 5
+	IF  reduce 5
+	GRIFFIN  reduce 5
+	SC  reduce 5
+	FOR  reduce 5
+	FUNC_IDENTIFIER  reduce 5
+	WHILE  reduce 5
+	IDENTIFIER  reduce 5
+	DELETE_TYPE  reduce 5
+	RETURN  reduce 5
+
+
+state 209
+	input_stmt : GRIFFIN LP input_from RP INPUT_STREAM IDENTIFIER .  (135)
+
+	.  reduce 135
+
+
+state 210
+	for_stmt : FOR LP dec_stmt SC cond_expr SC . arith_expr RP LB stmts RB  (33)
+
+	FUNCTION_CALL_IDENTIFIER  shift 78
+	INT  shift 107
+	FLOAT  shift 108
+	IDENTIFIER  shift 192
+	.  error
+
+	arith_expr  goto 228
+	func_call  goto 194
+	arith_expr_identifiers  goto 114
+
+
+state 211
+	param_dec_type : SET_IDENTIFIER .  (117)
+
+	.  reduce 117
+
+
+state 212
+	param_dec_type : ELEMENT_IDENTIFIER .  (118)
+
+	.  reduce 118
+
+
+state 213
+	param_dec_type : primitive_type .  (116)
+
+	.  reduce 116
+
+
+state 214
+	param_dec_list : IDENTIFIER COLON param_dec_type .  (120)
+	param_dec_list : IDENTIFIER COLON param_dec_type . COMMA param_dec_type  (121)
+
+	COMMA  shift 229
+	RP  reduce 120
+
+
+state 215
+	func_dec : FUNC_IDENTIFIER IDENTIFIER LP param_dec_list RP COLON . func_dec_primitive LB stmts RB  (112)
+
+	SET_IDENTIFIER  shift 230
+	INT_TYPE  shift 101
+	STRING_TYPE  shift 102
+	FLOAT_TYPE  shift 103
+	CHAR_TYPE  shift 104
+	BOOLEAN_TYPE  shift 105
+	VOID_IDENTIFIER  shift 231
+	.  error
+
+	primitive_type  goto 232
+	func_dec_primitive  goto 233
+
+
+state 216
+	while_stmt : WHILE LP cond_expr RP LB stmts . RB  (34)
+
+	RB  shift 234
+	.  error
+
+
+state 217
+	set_op : UNION .  (74)
+
+	.  reduce 74
+
+
+state 218
+	set_op : DIFF .  (76)
+
+	.  reduce 76
+
+
+state 219
+	set_op : CROSS .  (77)
+
+	.  reduce 77
+
+
+state 220
+	set_op : INTER .  (75)
+
+	.  reduce 75
+
+
+state 221
+	set_expr : set_expr_identifiers set_op . set_expr  (51)
+
+	FUNCTION_CALL_IDENTIFIER  shift 78
+	LB  shift 41
+	IDENTIFIER  shift 189
+	.  error
+
+	set_expr  goto 235
+	set_expr_identifiers  goto 191
+	set_constant  goto 90
+	func_call  goto 91
+
+
+state 222
+	prim_set_func_call : FUNCTION_CALL_IDENTIFIER IDENTIFIER DOT prim_set_func LP param_list RP .  (131)
+
+	.  reduce 131
+
+
+state 223
+	prim_set_func_call : FUNCTION_CALL_IDENTIFIER set_constant DOT prim_set_func LP param_list RP .  (132)
+
+	.  reduce 132
+
+
+state 224
+	arith_relational_expr : LP arith_relational_elements relational_op arith_relational_expr RP .  (42)
+
+	.  reduce 42
+
+
+state 225
+	set_cond_expr : set_expr_identifiers DOT set_cond_op LP set_expr_identifiers . RP  (52)
+
+	RP  shift 236
+	.  error
+
+
+state 226
+	unmatched_stmt : IF LP cond_expr RP LB stmts RB . ELSE LB stmts RB  (17)
+	unmatched_stmt : IF LP cond_expr RP LB stmts RB .  (18)
+
+	ELSE  shift 237
+	GRIFFOUT  reduce 18
+	FUNCTION_CALL_IDENTIFIER  reduce 18
+	COMMENT  reduce 18
+	IF  reduce 18
+	GRIFFIN  reduce 18
+	SC  reduce 18
+	FOR  reduce 18
+	FUNC_IDENTIFIER  reduce 18
+	WHILE  reduce 18
+	RB  reduce 18
+	IDENTIFIER  reduce 18
+	DELETE_TYPE  reduce 18
+	RETURN  reduce 18
+
+
+state 227
+	matched_stmt : IF LP cond_expr RP LB matched_stmt RB . ELSE LB matched_stmt  (13)
+	unmatched_stmt : IF LP cond_expr RP LB matched_stmt RB . ELSE LB unmatched_stmt RB  (16)
+
+	ELSE  shift 238
+	.  error
+
+
+state 228
+	for_stmt : FOR LP dec_stmt SC cond_expr SC arith_expr . RP LB stmts RB  (33)
+
+	RP  shift 239
+	.  error
+
+
+state 229
+	param_dec_list : IDENTIFIER COLON param_dec_type COMMA . param_dec_type  (121)
+
+	SET_IDENTIFIER  shift 211
+	INT_TYPE  shift 101
+	STRING_TYPE  shift 102
+	FLOAT_TYPE  shift 103
+	CHAR_TYPE  shift 104
+	BOOLEAN_TYPE  shift 105
+	ELEMENT_IDENTIFIER  shift 212
+	.  error
+
+	primitive_type  goto 213
+	param_dec_type  goto 240
+
+
+state 230
+	func_dec_primitive : SET_IDENTIFIER .  (114)
+
+	.  reduce 114
+
+
+state 231
+	func_dec_primitive : VOID_IDENTIFIER .  (115)
+
+	.  reduce 115
+
+
+state 232
+	func_dec_primitive : primitive_type .  (113)
+
+	.  reduce 113
+
+
+state 233
+	func_dec : FUNC_IDENTIFIER IDENTIFIER LP param_dec_list RP COLON func_dec_primitive . LB stmts RB  (112)
+
+	LB  shift 241
+	.  error
+
+
+state 234
+	while_stmt : WHILE LP cond_expr RP LB stmts RB .  (34)
+
+	.  reduce 34
+
+
+state 235
+	set_expr : set_expr_identifiers set_op set_expr .  (51)
+
+	.  reduce 51
+
+
+state 236
+	set_cond_expr : set_expr_identifiers DOT set_cond_op LP set_expr_identifiers RP .  (52)
+
+	.  reduce 52
+
+
+state 237
+	unmatched_stmt : IF LP cond_expr RP LB stmts RB ELSE . LB stmts RB  (17)
+
+	LB  shift 242
+	.  error
+
+
+state 238
+	matched_stmt : IF LP cond_expr RP LB matched_stmt RB ELSE . LB matched_stmt  (13)
+	unmatched_stmt : IF LP cond_expr RP LB matched_stmt RB ELSE . LB unmatched_stmt RB  (16)
+
+	LB  shift 243
+	.  error
+
+
+state 239
+	for_stmt : FOR LP dec_stmt SC cond_expr SC arith_expr RP . LB stmts RB  (33)
+
+	LB  shift 244
+	.  error
+
+
+state 240
+	param_dec_list : IDENTIFIER COLON param_dec_type COMMA param_dec_type .  (121)
+
+	.  reduce 121
+
+
+state 241
+	func_dec : FUNC_IDENTIFIER IDENTIFIER LP param_dec_list RP COLON func_dec_primitive LB . stmts RB  (112)
+
+	GRIFFOUT  shift 1
+	FUNCTION_CALL_IDENTIFIER  shift 2
+	COMMENT  shift 3
+	IF  shift 4
+	GRIFFIN  shift 5
+	FOR  shift 6
+	FUNC_IDENTIFIER  shift 7
+	WHILE  shift 8
+	IDENTIFIER  shift 9
+	DELETE_TYPE  shift 10
+	RETURN  shift 11
+	.  error
+
+	stmts  goto 245
+	stmt  goto 14
+	matched_stmt  goto 15
+	unmatched_stmt  goto 16
+	dec_stmt  goto 17
+	set_dec_stmt  goto 18
+	assign_stmt  goto 19
+	set_assign_stmt  goto 20
+	if_block  goto 21
+	loop_stmt  goto 22
+	func_stmt  goto 23
+	return_stmt  goto 24
+	stream_stmt  goto 25
+	delete_stmt  goto 26
+	comment  goto 27
+	for_stmt  goto 28
+	while_stmt  goto 29
+	func_call  goto 30
+	func_dec  goto 31
+	prim_set_func_call  goto 32
+	input_stmt  goto 33
+	output_stmt  goto 34
+
+
+state 242
+	unmatched_stmt : IF LP cond_expr RP LB stmts RB ELSE LB . stmts RB  (17)
+
+	GRIFFOUT  shift 1
+	FUNCTION_CALL_IDENTIFIER  shift 2
+	COMMENT  shift 3
+	IF  shift 4
+	GRIFFIN  shift 5
+	FOR  shift 6
+	FUNC_IDENTIFIER  shift 7
+	WHILE  shift 8
+	IDENTIFIER  shift 9
+	DELETE_TYPE  shift 10
+	RETURN  shift 11
+	.  error
+
+	stmts  goto 246
+	stmt  goto 14
+	matched_stmt  goto 15
+	unmatched_stmt  goto 16
+	dec_stmt  goto 17
+	set_dec_stmt  goto 18
+	assign_stmt  goto 19
+	set_assign_stmt  goto 20
+	if_block  goto 21
+	loop_stmt  goto 22
+	func_stmt  goto 23
+	return_stmt  goto 24
+	stream_stmt  goto 25
+	delete_stmt  goto 26
+	comment  goto 27
+	for_stmt  goto 28
+	while_stmt  goto 29
+	func_call  goto 30
+	func_dec  goto 31
+	prim_set_func_call  goto 32
+	input_stmt  goto 33
+	output_stmt  goto 34
+
+
+state 243
+	matched_stmt : IF LP cond_expr RP LB matched_stmt RB ELSE LB . matched_stmt  (13)
+	unmatched_stmt : IF LP cond_expr RP LB matched_stmt RB ELSE LB . unmatched_stmt RB  (16)
+
+	GRIFFOUT  shift 1
+	FUNCTION_CALL_IDENTIFIER  shift 2
+	COMMENT  shift 3
+	IF  shift 4
+	GRIFFIN  shift 5
+	FOR  shift 6
+	FUNC_IDENTIFIER  shift 7
+	WHILE  shift 8
+	IDENTIFIER  shift 9
+	DELETE_TYPE  shift 10
+	RETURN  shift 11
+	.  error
+
+	matched_stmt  goto 247
+	unmatched_stmt  goto 248
+	dec_stmt  goto 17
+	set_dec_stmt  goto 18
+	assign_stmt  goto 19
+	set_assign_stmt  goto 20
+	if_block  goto 21
+	loop_stmt  goto 22
+	func_stmt  goto 23
+	return_stmt  goto 24
+	stream_stmt  goto 25
+	delete_stmt  goto 26
+	comment  goto 27
+	for_stmt  goto 28
+	while_stmt  goto 29
+	func_call  goto 30
+	func_dec  goto 31
+	prim_set_func_call  goto 32
+	input_stmt  goto 33
+	output_stmt  goto 34
+
+
+state 244
+	for_stmt : FOR LP dec_stmt SC cond_expr SC arith_expr RP LB . stmts RB  (33)
+
+	GRIFFOUT  shift 1
+	FUNCTION_CALL_IDENTIFIER  shift 2
+	COMMENT  shift 3
+	IF  shift 4
+	GRIFFIN  shift 5
+	FOR  shift 6
+	FUNC_IDENTIFIER  shift 7
+	WHILE  shift 8
+	IDENTIFIER  shift 9
+	DELETE_TYPE  shift 10
+	RETURN  shift 11
+	.  error
+
+	stmts  goto 249
+	stmt  goto 14
+	matched_stmt  goto 15
+	unmatched_stmt  goto 16
+	dec_stmt  goto 17
+	set_dec_stmt  goto 18
+	assign_stmt  goto 19
+	set_assign_stmt  goto 20
+	if_block  goto 21
+	loop_stmt  goto 22
+	func_stmt  goto 23
+	return_stmt  goto 24
+	stream_stmt  goto 25
+	delete_stmt  goto 26
+	comment  goto 27
+	for_stmt  goto 28
+	while_stmt  goto 29
+	func_call  goto 30
+	func_dec  goto 31
+	prim_set_func_call  goto 32
+	input_stmt  goto 33
+	output_stmt  goto 34
+
+
+state 245
+	func_dec : FUNC_IDENTIFIER IDENTIFIER LP param_dec_list RP COLON func_dec_primitive LB stmts . RB  (112)
+
+	RB  shift 250
+	.  error
+
+
+state 246
+	unmatched_stmt : IF LP cond_expr RP LB stmts RB ELSE LB stmts . RB  (17)
+
+	RB  shift 251
+	.  error
+
+
+state 247
+	matched_stmt : IF LP cond_expr RP LB matched_stmt RB ELSE LB matched_stmt .  (13)
+
+	.  reduce 13
+
+
+state 248
+	unmatched_stmt : IF LP cond_expr RP LB matched_stmt RB ELSE LB unmatched_stmt . RB  (16)
+
+	RB  shift 252
+	.  error
+
+
+state 249
+	for_stmt : FOR LP dec_stmt SC cond_expr SC arith_expr RP LB stmts . RB  (33)
+
+	RB  shift 253
+	.  error
+
+
+state 250
+	func_dec : FUNC_IDENTIFIER IDENTIFIER LP param_dec_list RP COLON func_dec_primitive LB stmts RB .  (112)
+
+	.  reduce 112
+
+
+state 251
+	unmatched_stmt : IF LP cond_expr RP LB stmts RB ELSE LB stmts RB .  (17)
+
+	.  reduce 17
+
+
+state 252
+	unmatched_stmt : IF LP cond_expr RP LB matched_stmt RB ELSE LB unmatched_stmt RB .  (16)
+
+	.  reduce 16
+
+
+state 253
+	for_stmt : FOR LP dec_stmt SC cond_expr SC arith_expr RP LB stmts RB .  (33)
+
+	.  reduce 33
+
+
+State 109 contains 13 reduce/reduce conflicts.
+State 113 contains 13 reduce/reduce conflicts.
+
+
+72 terminals, 57 nonterminals
+148 grammar rules, 254 states

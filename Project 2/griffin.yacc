@@ -1,9 +1,6 @@
 
 %{
 #include <stdio.h>
-#include <stdlib.h>
-void yyerror(char* s);
-    extern int yylineno;
 %}
 
 %token GRIFFILE
@@ -37,7 +34,6 @@ void yyerror(char* s);
 %token LTE
 %token LT
 %token GT
-%token AT
 %token NOT_EQUAL
 %token INPUT_STREAM
 %token OUTPUT_STREAM
@@ -71,16 +67,12 @@ void yyerror(char* s);
 %token DELETE_TYPE
 %token RETURN
 %token NL
-%token TRUE
-%token FALSE
 
-%token LETTER
-%token DIGIT
-%token UNDERSCORE
 %token BOOLEAN
 %token CONTAINS
 %token VOID_IDENTIFIER
 %token ELEMENT_IDENTIFIER
+
 
 %start program
 
@@ -90,53 +82,40 @@ void yyerror(char* s);
 
 //Program
 program:
-	stmts
+	stmts {printf("\rProgram is valid.\n");}
 
 stmts:
     stmt stmt SC
   | stmt SC
   | stmt SC NL
 
-stmt: dec_stmt | if_stmt | loop_stmt | func_stmt
-    | assign_stmt | return_stmt | stream_stmt
-    | set_dec_stmt | delete_stmt
+stmt: matched_stmt | unmatched_stmt
 
 dec_stmt: IDENTIFIER COLON primitive_type ASSIGN_OP expression
         | IDENTIFIER COLON primitive_type
 
 set_dec_stmt: IDENTIFIER COLON SET_IDENTIFIER
             | IDENTIFIER COLON SET_IDENTIFIER ASSIGN_OP set_expr
-            | IDENTIFIER COLON SET_IDENTIFIER ASSIGN_OP FUNCTION_CALL_IDENTIFIER
 
 assign_stmt : IDENTIFIER ASSIGN_OP expression
-
-set_assign_stmt : IDENTIFIER ASSIGN_OP set_expr_identifiers
-
 /*6. IF STATEMENTS */
-if_stmt : matched_if | unmatched_if
 
-matched_if : IF LP cond_expr RP LB matched_if RB
-		ELSE LB matched_if
+matched_stmt : IF LP cond_expr RP LB matched_stmt RB
+		ELSE LB matched_stmt
 		| if_block
-
-unmatched_if : IF LP cond_expr RP LB if_block RB 
-    | IF LP cond_expr RP LB matched_if 
-      RB ELSE LB unmatched_if RB
+    
+unmatched_stmt : IF LP cond_expr RP stmt
+    		| IF LP cond_expr RP LB matched_stmt RB ELSE LB unmatched_stmt RB
+		| IF LP cond_expr RP LB stmts RB ELSE LB stmts RB
+		| IF LP cond_expr RP LB stmts RB
 
 if_block : dec_stmt | loop_stmt | func_stmt
                   | assign_stmt |   return_stmt | stream_stmt 
-                  | set_dec_stmt   | delete_stmt
+                  | set_dec_stmt   | delete_stmt | comment
 
 
-
-
-return_stmt:  RETURN IDENTIFIER
-            | RETURN
-            | RETURN expression
-            | RETURN cond_expr
-            | RETURN constant
-            | RETURN set_constant
-            | RETURN set_expr
+return_stmt:  RETURN IDENTIFIER |
+		RETURN constant_list
 
 loop_stmt: for_stmt
         | while_stmt
@@ -147,61 +126,47 @@ while_stmt : WHILE LP cond_expr RP LB stmts RB
  
 /*8. EXPRESSIONS */
 
-expression :arith_expr | FUNCTION_CALL_IDENTIFIER
+expression :arith_expr | set_constant
 
-cond_expr : set_cond_expr | logic_expr| arith_relational_expr | FUNCTION_CALL_IDENTIFIER | equality_expr	
+cond_expr : set_cond_expr | equality_expr	
 
 equality_expr : equal_condition_elements
 			      | equality_expr EQUALS_RELATION equal_condition_elements
 
 equal_condition_elements : arith_relational_expr | logic_expr
- 	                     | arith_expr | FUNCTION_CALL_IDENTIFIER | BOOLEAN_TYPE
-                         | IDENTIFIER | LP equality_expr RP
 
-arith_relational_expr: arith_relational_elements
-                     relational_op arith_relational_elements
+arith_relational_expr: LP arith_relational_elements relational_op arith_relational_expr RP
 
-arith_relational_elements: IDENTIFIER | INT | FLOAT | FUNCTION_CALL_IDENTIFIER
+arith_relational_elements: IDENTIFIER | INT | FLOAT
 
-logic_expr: logic_expr_element
-			| logic_expr_element logic_op logic_expr
+logic_expr: logic_expr_element | logic_expr_element logic_op logic_expr
 
-logic_expr_element : IDENTIFIER | FUNCTION_CALL_IDENTIFIER | BOOLEAN 
-                     | LP logic_expr RP
+logic_expr_element : IDENTIFIER | BOOLEAN 
 
 set_expr : set_expr_identifiers
-         | set_expr_identifiers set_op set_expr_identifiers
          | set_expr_identifiers set_op set_expr	
 
-set_cond_expr : set_expr_identifiers DOT set_cond_op 
-         LP set_expr_identifiers RP
+set_cond_expr : set_expr_identifiers DOT set_cond_op LP set_expr_identifiers RP
 
-set_expr_identifiers : IDENTIFIER | set_constant | FUNCTION_CALL_IDENTIFIER
+set_expr_identifiers : IDENTIFIER | set_constant | func_call
 
 arith_expr : arith_expr_identifiers
-			 | arith_expr_identifiers arith_op  arith_expr
+	     | arith_expr_identifiers arith_op  arith_expr
 
-arith_expr_identifiers : IDENTIFIER | INT | FLOAT | LP arith_expr RP
-
-
+arith_expr_identifiers : IDENTIFIER | INT | FLOAT | func_call
 
 delete_stmt: DELETE_TYPE IDENTIFIER
 
 //10 VARIABLES
 
-identifier :  AT LETTER 
-	       | AT LETTER more 
-
-more : more LETTER
-	     | more DIGIT
-	     | more UNDERSCORE
 
 set_constant : LB set_elements RB
 
 set_elements : constant
-			 | identifier
+			 | IDENTIFIER
 			 | constant COMMA set_elements 
-			 | identifier COMMA set_elements
+			 | IDENTIFIER COMMA set_elements
+
 
 constant : STRING | INT | FLOAT | CHAR | BOOLEAN
 //------------------------
@@ -230,14 +195,6 @@ primitive_type: STRING_TYPE
                 | CHAR_TYPE 
                 | BOOLEAN_TYPE
 
-
-string: STRING
-int: INT
-float: FLOAT
-char: CHAR
-boolean : TRUE | FALSE
-
-
 //14 Function Declarations and Calls
 func_stmt : func_dec | func_call | prim_set_func_call
 
@@ -254,9 +211,9 @@ param_dec_list : empty | IDENTIFIER COLON param_dec_type
 constant_list : constant | set_constant
 
 param_list : IDENTIFIER | empty
-		 | constant_list
-		 | IDENTIFIER COMMA param_list
-	             | constant_list COMMA constant_list	
+		       | constant_list
+		       | IDENTIFIER COMMA param_list
+	         | constant_list COMMA constant_list	
 
 func_call : FUNCTION_CALL_IDENTIFIER IDENTIFIER LP param_list RP
     | FUNCTION_CALL_IDENTIFIER prim_set_func LP param_list RP
@@ -280,14 +237,10 @@ output_from: IDENTIFIER | set_constant | constant
 file_constant: GRIFFILE LP STRING RP
 empty:
 %%
+#include "lex.yy.c"
+int lineno;
+main(){
+    return yyparse();
+}
 
-void yyerror(char *s) {
-	fprintf(stdout, "line %d: %s\n", yylineno,s);
-}
-int main(void){
- yyparse();
-if(yynerrs < 1){
-		printf("Parsing is successful\n");
-	}
- return 0;
-}
+yyerror( char *s ) { fprintf( stderr, "%s\n", s); };
